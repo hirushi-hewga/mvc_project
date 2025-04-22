@@ -13,14 +13,19 @@
             <tr>
                 <th>Id</th>
                 <th>Name</th>
+                <th class="text-center">Actions</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var category in Model)
             {
                 <tr>
-                    <td>@category.Id</td>
+                    <td class="">@category.Id</td>
                     <td>@category.Name</td>
+					<td class="text-center">
+                        <a class="btn btn-primary" style="margin: 0;" asp-action="Edit" asp-route-id="@category.Id"><i class="bi bi-pencil"></i></a>
+                        <a class="btn btn-danger" asp-action="Delete" asp-route-id="@category.Id"><i class="bi bi-trash"></i></a>
+                    </td>
                 </tr>
             }
         </tbody>
