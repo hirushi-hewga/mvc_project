@@ -1,0 +1,12 @@
+﻿@model mvc_project.Models.Product
+
+<div style="width: 40%; margin: 0px auto; background-color: lightgoldenrodyellow; border-radius: 5px; padding: 10px; border: 2px solid black;">
+    <h1>Видалення продукту</h1>
+    <h3>Ви впевнені, що хочете видалити "@Model.Name"</h3>
+    <form asp-action="Delete" method="post">
+        <div class="text-center pt-2">
+            <input type="submit" value="Видалити" class="btn btn-danger" />
+            <a class="btn btn-dark" asp-action="Index">Скасувати</a>
+        </div>
+    </form>
+</div>

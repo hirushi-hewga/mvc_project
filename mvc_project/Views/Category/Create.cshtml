@@ -1,18 +1,19 @@
-﻿@model Category
+﻿@model CategoryCreateViewModel
 
 <div style="width: 40%; margin: 0px auto; background-color: lightgoldenrodyellow; border-radius: 5px; padding: 10px; border: 2px solid black;">
-    <h1>Створення нової категорії</h1>
-    <form asp-action="Create" method="post">
+    <h1>@(Model.IsEdit ? "Редагування нової категорії" : "Створення нової категорії")</h1>
+    <form asp-action=@(Model.IsEdit ? "Edit" : "Create") method="post">
+        <input type="text" class="form-control" asp-for="Category.Id" hidden>
         <div class="row g-3 align-items-center" style="display: flex; justify-content: center;">
             <div class="col-auto">
                 <label for="name" class="col-form-label">Назва</label>
             </div>
             <div class="col-auto">
-                <input type="text" class="form-control" asp-for="Name">
+                <input type="text" class="form-control" asp-for="Category.Name">
             </div>
         </div>
         <div style="text-align: center; padding-top: 10px;">
-            <input type="submit" value="Створити" class="btn btn-success" />
+            <input type="submit" value=@(Model.IsEdit ? "Зберегти" : "Створити") class="btn btn-primary" />
             <a class="btn btn-dark" asp-action="Index">Повернутися</a>
         </div>
     </form>

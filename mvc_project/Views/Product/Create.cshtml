@@ -1,0 +1,61 @@
+﻿@model ProductCreateViewModel
+
+<div style="width: 40%; margin: 0px auto; background-color: lightgoldenrodyellow; border-radius: 5px; padding: 10px; border: 2px solid black;">
+    <h1>@(Model.IsEdit ? "Редагування нового продукту" : "Створення нового продукту")</h1>
+    <form asp-action=@(Model.IsEdit ? "Edit" : "Create") method="post">
+        <input type="text" class="form-control" asp-for="Product.Id" hidden>
+        <div class="row g-3 align-items-center" style="display: flex; justify-content: center;">
+            <div class="col-auto">
+                <label for="name" class="col-form-label">Назва</label>
+            </div>
+            <div class="col-auto">
+                <input type="text" class="form-control" asp-for="Product.Name">
+            </div>
+        </div>
+        <div class="row g-3 align-items-center" style="display: flex; justify-content: center;">
+            <div class="col-auto">
+                <label for="description" class="col-form-label">Опис</label>
+            </div>
+            <div class="col-auto">
+                <input type="text" class="form-control" asp-for="Product.Description">
+            </div>
+        </div>
+        <div class="row g-3 align-items-center" style="display: flex; justify-content: center;">
+            <div class="col-auto">
+                <label for="price" class="col-form-label">Ціна</label>
+            </div>
+            <div class="col-auto">
+                <input type="text" class="form-control" asp-for="Product.Price">
+            </div>
+        </div>
+        <div class="row g-3 align-items-center" style="display: flex; justify-content: center;">
+            <div class="col-auto">
+                <label for="amount" class="col-form-label">Кількість</label>
+            </div>
+            <div class="col-auto">
+                <input type="text" class="form-control" asp-for="Product.Amount">
+            </div>
+        </div>
+        <div class="row g-3 align-items-center" style="display: flex; justify-content: center;">
+            <div class="col-auto">
+                <label for="image" class="col-form-label">Зображення</label>
+            </div>
+            <div class="col-auto">
+                <input type="text" class="form-control" asp-for="Product.Image">
+            </div>
+        </div>
+        <div class="row g-3 align-items-center" style="display: flex; justify-content: center;">
+            <div class="col-auto">
+                <label for="category" class="col-form-label">Категорія</label>
+            </div>
+			<div class="col-auto">
+                <select asp-for="Product.CategoryId" class="form-control" asp-items="Model.Categories">
+                </select>
+            </div>
+        </div>
+        <div style="text-align: center; padding-top: 10px;">
+            <input type="submit" value=@(Model.IsEdit ? "Зберегти" : "Створити") class="btn btn-primary" />
+            <a class="btn btn-dark" asp-action="Index">Повернутися</a>
+        </div>
+    </form>
+</div>

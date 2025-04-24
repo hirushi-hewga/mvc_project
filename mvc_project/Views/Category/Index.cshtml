@@ -20,7 +20,7 @@
             @foreach (var category in Model)
             {
                 <tr>
-                    <td class="">@category.Id</td>
+                    <td>@category.Id</td>
                     <td>@category.Name</td>
 					<td class="text-center">
                         <a class="btn btn-primary" style="margin: 0;" asp-action="Edit" asp-route-id="@category.Id"><i class="bi bi-pencil"></i></a>

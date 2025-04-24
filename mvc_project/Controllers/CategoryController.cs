@@ -22,13 +22,21 @@ namespace mvc_project.Controllers
 
         public IActionResult Create()
         {
-            return View();
+            var viewModel = new CategoryCreateViewModel
+            {
+                Category = new Category(),
+            };
+            return View(viewModel);
         }
 
         public IActionResult Edit(string id)
         {
-            var category = _context.Categories.FirstOrDefault(c => c.Id == id);
-            return View(category);
+            var viewModel = new CategoryCreateViewModel
+            {
+                Category = _context.Categories.FirstOrDefault(c => c.Id == id),
+                IsEdit = true
+            };
+            return View("Create", viewModel);
         }
 
         public IActionResult Delete(string id)
@@ -39,10 +47,11 @@ namespace mvc_project.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Category model)
+        public IActionResult Create(CategoryCreateViewModel model)
         {
-            model.Id = Guid.NewGuid().ToString();
-            _context.Categories.Add(model);
+            var category = model.Category;
+            category.Id = Guid.NewGuid().ToString();
+            _context.Categories.Add(category);
             _context.SaveChanges();
 
             return RedirectToAction("Index");
@@ -50,9 +59,9 @@ namespace mvc_project.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Category model)
+        public IActionResult Edit(CategoryCreateViewModel model)
         {
-            _context.Categories.Update(model);
+            _context.Categories.Update(model.Category);
             _context.SaveChanges();
 
             return RedirectToAction("Index");

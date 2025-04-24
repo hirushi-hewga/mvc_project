@@ -1,9 +1,45 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model ProductReadViewModel
 
-<div>
+<div style="display: flex">
     <h1>Products</h1>
+    <div style="flex-grow: 1; text-align: end">
+        <a class="btn btn-dark" asp-action="Create">Додати продукт</a>
+    </div>
 </div>
+@if (Model.Products.Count() > 0)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Amount</th>
+                <th>Category</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in Model.Products)
+            {
+                <tr>
+                    <td>@product.Id</td>
+                    <td>@product.Name</td>
+                    <td>@product.Description</td>
+                    <td>@product.Price</td>
+                    <td>@product.Amount</td>
+                    <td>@Model.Categories.FirstOrDefault(c => c.Id == product.CategoryId)?.Name</td>
+                    <td class="text-center">
+                        <a class="btn btn-primary" style="margin: 0;" asp-action="Edit" asp-route-id="@product.Id"><i class="bi bi-pencil"></i></a>
+                        <a class="btn btn-danger" asp-action="Delete" asp-route-id="@product.Id"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <h2>Продукти не знайдено</h2>
+}
