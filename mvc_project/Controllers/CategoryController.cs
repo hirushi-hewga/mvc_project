@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using mvc_project.Data;
 using mvc_project.Models;
@@ -22,34 +24,59 @@ namespace mvc_project.Controllers
 
         public IActionResult Create()
         {
-            var viewModel = new CategoryCreateViewModel
-            {
-                Category = new Category(),
-            };
-            return View(viewModel);
+            return View(new CategoryCreateViewModel());
         }
 
         public IActionResult Edit(string id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
             var viewModel = new CategoryCreateViewModel
             {
                 Category = _context.Categories.FirstOrDefault(c => c.Id == id),
                 IsEdit = true
             };
+
+            if (viewModel.Category == null)
+            {
+                return NotFound();
+            }
+
             return View("Create", viewModel);
         }
 
         public IActionResult Delete(string id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
             var category = _context.Categories.FirstOrDefault(c => c.Id == id);
+
+            if (category == null)
+            {
+                return NotFound();
+            }
+
             return View(category);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CategoryCreateViewModel model)
+        public IActionResult Create(CategoryCreateViewModel viewModel)
         {
-            var category = model.Category;
+            var errors = CategoryValidate(viewModel.Category);
+            if (errors.Any())
+            {
+                viewModel.Errors = errors.AsEnumerable();
+                return View(viewModel);
+            }
+
+            var category = viewModel.Category;
             category.Id = Guid.NewGuid().ToString();
             _context.Categories.Add(category);
             _context.SaveChanges();
@@ -59,9 +86,17 @@ namespace mvc_project.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(CategoryCreateViewModel model)
+        public IActionResult Edit(CategoryCreateViewModel viewModel)
         {
-            _context.Categories.Update(model.Category);
+            var errors = CategoryValidate(viewModel.Category);
+            if (errors.Any())
+            {
+                viewModel.Errors = errors.AsEnumerable();
+                viewModel.IsEdit = true;
+                return View("Create", viewModel);
+            }
+
+            _context.Categories.Update(viewModel.Category);
             _context.SaveChanges();
 
             return RedirectToAction("Index");
@@ -75,6 +110,17 @@ namespace mvc_project.Controllers
             _context.SaveChanges();
 
             return RedirectToAction("Index");
+        }
+
+        private List<string> CategoryValidate(Category category)
+        {
+            var errors = new List<string>();
+
+            // Name
+            if (string.IsNullOrWhiteSpace(category.Name)) { errors.Add("Назва є обов'язковою"); }
+            else if (category.Name?.Length > 100) { errors.Add("Назва має бути менше ніж 100 символів"); }
+
+            return errors;
         }
     }
 }

@@ -2,53 +2,38 @@
 
 <div style="width: 40%; margin: 0px auto; background-color: lightgoldenrodyellow; border-radius: 5px; padding: 10px; border: 2px solid black;">
     <h1>@(Model.IsEdit ? "Редагування нового продукту" : "Створення нового продукту")</h1>
-    <form asp-action=@(Model.IsEdit ? "Edit" : "Create") method="post">
+    <form asp-action=@(Model.IsEdit ? "Edit" : "Create") enctype="multipart/form-data" method="post" class="d-flex align-items-center flex-column">
         <input type="text" class="form-control" asp-for="Product.Id" hidden>
-        <div class="row g-3 align-items-center" style="display: flex; justify-content: center;">
-            <div class="col-auto">
+        <input type="text" class="form-control" asp-for="Product.Image" hidden/>
+        <div style="width: 90%;">
+            @if (Model.IsEdit)
+            {
+                <div class="text-center">
+                    <img style="width: 75%; border: 1px solid black;" alt="@Model.Product.Name" src="~/images/products/@(Model.Product.Image ?? "productDefault.png")" />
+                </div>
+            }
+            <div>
                 <label for="name" class="col-form-label">Назва</label>
-            </div>
-            <div class="col-auto">
                 <input type="text" class="form-control" asp-for="Product.Name">
             </div>
-        </div>
-        <div class="row g-3 align-items-center" style="display: flex; justify-content: center;">
-            <div class="col-auto">
+            <div>
                 <label for="description" class="col-form-label">Опис</label>
-            </div>
-            <div class="col-auto">
                 <input type="text" class="form-control" asp-for="Product.Description">
             </div>
-        </div>
-        <div class="row g-3 align-items-center" style="display: flex; justify-content: center;">
-            <div class="col-auto">
+            <div>
                 <label for="price" class="col-form-label">Ціна</label>
+                <input type="number" class="form-control" asp-for="Product.Price">
             </div>
-            <div class="col-auto">
-                <input type="text" class="form-control" asp-for="Product.Price">
-            </div>
-        </div>
-        <div class="row g-3 align-items-center" style="display: flex; justify-content: center;">
-            <div class="col-auto">
+            <div>
                 <label for="amount" class="col-form-label">Кількість</label>
+                <input type="number" class="form-control" asp-for="Product.Amount">
             </div>
-            <div class="col-auto">
-                <input type="text" class="form-control" asp-for="Product.Amount">
-            </div>
-        </div>
-        <div class="row g-3 align-items-center" style="display: flex; justify-content: center;">
-            <div class="col-auto">
+            <div>
                 <label for="image" class="col-form-label">Зображення</label>
+                <input type="file" class="form-control" asp-for="File">
             </div>
-            <div class="col-auto">
-                <input type="text" class="form-control" asp-for="Product.Image">
-            </div>
-        </div>
-        <div class="row g-3 align-items-center" style="display: flex; justify-content: center;">
-            <div class="col-auto">
+            <div>
                 <label for="category" class="col-form-label">Категорія</label>
-            </div>
-			<div class="col-auto">
                 <select asp-for="Product.CategoryId" class="form-control" asp-items="Model.Categories">
                 </select>
             </div>
@@ -58,4 +43,13 @@
             <a class="btn btn-dark" asp-action="Index">Повернутися</a>
         </div>
     </form>
+    @if (Model.Errors != null)
+    {
+        <div class="text-center d-flex flex-column mt-3">
+            @foreach (var error in Model.Errors)
+            {
+                <label style="font-size: 0.9em; color: red;">@error</label>
+            }
+        </div>
+    }
 </div>
