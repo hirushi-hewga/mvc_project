@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using mvc_project.Data;
+using mvc_project.Data.Initializer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,9 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Seeding data
+app.Seed();
 
 app.Run();
 
