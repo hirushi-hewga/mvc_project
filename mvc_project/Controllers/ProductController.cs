@@ -2,6 +2,7 @@
 using mvc_project.Models;
 using mvc_project.Repositories.Products;
 using mvc_project.Services.Image;
+using mvc_project.Validators;
 
 namespace mvc_project.Controllers
 {
@@ -53,11 +54,13 @@ namespace mvc_project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateAsync([FromForm] ProductCreateViewModel viewModel)
         {
-            var errors = ProductValidate(viewModel.Product);
-            if (errors.Any())
+            var validator = new ProductValidator();
+            var result = await validator.ValidateAsync(viewModel.Product);
+            
+            if (!result.IsValid)
             {
                 viewModel.Categories = await productRepository.GetCategoriesSelectListAsync();
-                viewModel.Errors = errors.AsEnumerable();
+                viewModel.Errors = result.Errors.Select(e => e.ErrorMessage).ToList();
                 return View(viewModel);
             }
 
@@ -78,11 +81,13 @@ namespace mvc_project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditAsync(ProductCreateViewModel viewModel)
         {
-            var errors = ProductValidate(viewModel.Product);
-            if (errors.Any())
+            var validator = new ProductValidator();
+            var result = await validator.ValidateAsync(viewModel.Product);
+
+            if (!result.IsValid)
             {
                 viewModel.Categories = await productRepository.GetCategoriesSelectListAsync();
-                viewModel.Errors = errors.AsEnumerable();
+                viewModel.Errors = result.Errors.Select(e => e.ErrorMessage).ToList();
                 viewModel.IsEdit = true;
                 return View("Create", viewModel);
             }
@@ -107,27 +112,6 @@ namespace mvc_project.Controllers
             await productRepository.DeleteAsync(model.Id);
 
             return RedirectToAction("Index");
-        }
-
-        private List<string> ProductValidate(Product product)
-        {
-            var errors = new List<string>();
-
-            // Name
-            if (string.IsNullOrWhiteSpace(product.Name)) { errors.Add("Назва є обов'язковою"); }
-            else if (product.Name?.Length > 100) { errors.Add("Назва має бути менше ніж 100 символів"); }
-
-            // Description
-            if (!string.IsNullOrWhiteSpace(product.Description) && product.Description.Length > 255)
-            { errors.Add("Опис має бути менше ніж 255 символів"); }
-
-            // Price
-            if (product.Price < 0) { errors.Add("Ціна має бути не меншою ніж 0"); }
-
-            // Amount
-            if (product.Amount < 0) { errors.Add("Кількість продуктів має бути не менше ніж 0"); }
-
-            return errors;
         }
     }
 }

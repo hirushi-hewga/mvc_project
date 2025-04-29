@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using mvc_project.Models;
 using mvc_project.Repositories.Categories;
+using mvc_project.Validators;
 
 namespace mvc_project.Controllers
 {
@@ -47,17 +48,18 @@ namespace mvc_project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateAsync(CategoryCreateViewModel viewModel)
         {
-            var errors = CategoryValidate(viewModel.Category);
-            if (errors.Any())
+            var validator = new CategoryValidator();
+            var result = await validator.ValidateAsync(viewModel.Category);
+            
+            if (!result.IsValid)
             {
-                viewModel.Errors = errors.AsEnumerable();
+                viewModel.Errors = result.Errors.Select(e => e.ErrorMessage).ToList();
                 return View(viewModel);
             }
 
-            var category = viewModel.Category;
-            category.Id = Guid.NewGuid().ToString();
+            viewModel.Category.Id = Guid.NewGuid().ToString();
             
-            await categoryRepository.CreateAsync(category);
+            await categoryRepository.CreateAsync(viewModel.Category);
 
             return RedirectToAction("Index");
         }
@@ -66,10 +68,12 @@ namespace mvc_project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditAsync(CategoryCreateViewModel viewModel)
         {
-            var errors = CategoryValidate(viewModel.Category);
-            if (errors.Any())
+            var validator = new CategoryValidator();
+            var result = await validator.ValidateAsync(viewModel.Category);
+            
+            if (!result.IsValid)
             {
-                viewModel.Errors = errors.AsEnumerable();
+                viewModel.Errors = result.Errors.Select(e => e.ErrorMessage).ToList();
                 viewModel.IsEdit = true;
                 return View("Create", viewModel);
             }
@@ -89,17 +93,6 @@ namespace mvc_project.Controllers
             await categoryRepository.DeleteAsync(model.Id);
 
             return RedirectToAction("Index");
-        }
-
-        private List<string> CategoryValidate(Category category)
-        {
-            var errors = new List<string>();
-
-            // Name
-            if (string.IsNullOrWhiteSpace(category.Name)) { errors.Add("Назва є обов'язковою"); }
-            else if (category.Name?.Length > 100) { errors.Add("Назва має бути менше ніж 100 символів"); }
-
-            return errors;
         }
     }
 }
