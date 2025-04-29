@@ -1,34 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using mvc_project.Data;
 using mvc_project.Models;
 using mvc_project.Repositories.Products;
 using mvc_project.Services.Image;
 
 namespace mvc_project.Controllers
 {
-    public class ProductController : Controller
+    public class ProductController(IProductRepository productRepository, IImageService imageService) : Controller
     {
-        private readonly AppDbContext _context;
-        private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IProductRepository _productRepository;
-        private readonly IImageService _imageService;
-
-        public ProductController(AppDbContext context, IWebHostEnvironment webHostEnvironment, IProductRepository productRepository, IImageService imageService)
-        {
-            _context = context;
-            _webHostEnvironment = webHostEnvironment;
-            _productRepository = productRepository;
-            _imageService = imageService;
-        }
-
         public async Task<IActionResult> DeleteAsync(string id)
         {
-            if (id == null)
-                return NotFound();
-
-            var product = await _productRepository.GetByIdAsync(id);
+            var product = await productRepository.GetByIdAsync(id);
 
             if (product == null)
                 return NotFound();
@@ -38,24 +19,23 @@ namespace mvc_project.Controllers
 
         public async Task<IActionResult> IndexAsync()
         {
-            var products = await _productRepository.GetAllAsync();
+            var products = await productRepository.GetAllAsync();
 
             return View(products);
         }
         public async Task<IActionResult> EditAsync(string id)
         {
-            if (id == null)
+            var product = await productRepository.GetByIdAsync(id);
+            
+            if (product == null)
                 return NotFound();
 
             var viewModel = new ProductCreateViewModel
             {
-                Product = await _productRepository.GetByIdAsync(id),
-                Categories = await _productRepository.GetCategoriesSelectListAsync(),
+                Product = product,
+                Categories = await productRepository.GetCategoriesSelectListAsync(),
                 IsEdit = true
             };
-
-            if (viewModel.Product == null)
-                return NotFound();
 
             return View("Create", viewModel);
         }
@@ -64,7 +44,7 @@ namespace mvc_project.Controllers
         {
             var viewModel = new ProductCreateViewModel
             {
-                Categories = await _productRepository.GetCategoriesSelectListAsync()
+                Categories = await productRepository.GetCategoriesSelectListAsync()
             };
             return View(viewModel);
         }
@@ -76,7 +56,7 @@ namespace mvc_project.Controllers
             var errors = ProductValidate(viewModel.Product);
             if (errors.Any())
             {
-                viewModel.Categories = await _productRepository.GetCategoriesSelectListAsync();
+                viewModel.Categories = await productRepository.GetCategoriesSelectListAsync();
                 viewModel.Errors = errors.AsEnumerable();
                 return View(viewModel);
             }
@@ -84,12 +64,12 @@ namespace mvc_project.Controllers
             string? fileName = null;
             if (viewModel.File != null)
             {
-                fileName = await _imageService.SaveImageAsync(viewModel.File, Settings.PRODUCTS_PATH);
+                fileName = await imageService.SaveImageAsync(viewModel.File, Settings.PRODUCTS_PATH);
             }
             viewModel.Product.Image = fileName;
             viewModel.Product.Id = Guid.NewGuid().ToString();
 
-            await _productRepository.CreateAsync(viewModel.Product);
+            await productRepository.CreateAsync(viewModel.Product);
 
             return RedirectToAction("Index");
         }
@@ -101,13 +81,13 @@ namespace mvc_project.Controllers
             var errors = ProductValidate(viewModel.Product);
             if (errors.Any())
             {
-                viewModel.Categories = await _productRepository.GetCategoriesSelectListAsync();
+                viewModel.Categories = await productRepository.GetCategoriesSelectListAsync();
                 viewModel.Errors = errors.AsEnumerable();
                 viewModel.IsEdit = true;
                 return View("Create", viewModel);
             }
 
-            await _productRepository.UpdateAsync(viewModel.Product);
+            await productRepository.UpdateAsync(viewModel.Product);
 
             return RedirectToAction("Index");
         }
@@ -118,13 +98,13 @@ namespace mvc_project.Controllers
         {
             if (model.Image != null)
             {
-                _imageService.DeleteImage(Path.Combine(Settings.PRODUCTS_PATH, model.Image));
+                imageService.DeleteImage(Path.Combine(Settings.PRODUCTS_PATH, model.Image));
             }
             
             if (model.Id == null)
                 return NotFound();
 
-            await _productRepository.DeleteAsync(model.Id);
+            await productRepository.DeleteAsync(model.Id);
 
             return RedirectToAction("Index");
         }

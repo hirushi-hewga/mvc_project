@@ -9,6 +9,7 @@ namespace mvc_project.Repositories.Products
         Task<bool> UpdateAsync(Product model);
         Task<bool> DeleteAsync(string id);
         Task<Product?> GetByIdAsync(string id);
+        Task<List<Product>> GetByCategoryAsync(string name);
         Task<List<Product>> GetAllAsync();
         Task<List<SelectListItem>> GetCategoriesSelectListAsync();
     }

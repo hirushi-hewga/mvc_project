@@ -1,14 +1,7 @@
 namespace mvc_project.Services.Image
 {
-    public class ImageService : IImageService
+    public class ImageService(IWebHostEnvironment webHostEnvironment) : IImageService
     {
-        private readonly IWebHostEnvironment _webHostEnvironment;
-
-        public ImageService(IWebHostEnvironment webHostEnvironment)
-        {
-            _webHostEnvironment = webHostEnvironment;
-        }
-        
         public async Task<string?> SaveImageAsync(IFormFile image, string path)
         {
             try
@@ -20,7 +13,7 @@ namespace mvc_project.Services.Image
                     return null;
                 }
                 
-                string root = _webHostEnvironment.WebRootPath;
+                string root = webHostEnvironment.WebRootPath;
                 string imageName = $"{Guid.NewGuid()}.{types[1]}";
                 string imagePath = Path.Combine(root, path, imageName);
 
@@ -42,7 +35,7 @@ namespace mvc_project.Services.Image
 
         public bool DeleteImage(string path)
         {
-            string root = _webHostEnvironment.WebRootPath;
+            string root = webHostEnvironment.WebRootPath;
             string imagePath = Path.Combine(root, path);
 
             if (File.Exists(imagePath))

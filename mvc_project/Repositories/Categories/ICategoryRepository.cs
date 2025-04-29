@@ -9,6 +9,7 @@ namespace mvc_project.Repositories.Categories
         Task<bool> UpdateAsync(Category model);
         Task<bool> DeleteAsync(string id);
         Task<Category?> GetByIdAsync(string id);
+        Task<Category?> GetByNameAsync(string name);
         Task<List<Category>> GetAllAsync();
     }
 }

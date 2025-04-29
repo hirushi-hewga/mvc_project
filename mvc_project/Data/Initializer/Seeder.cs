@@ -47,6 +47,9 @@ namespace mvc_project.Data.Initializer
                             CategoryId = categories[4].Id
                         }
                     };
+                    
+                    context.Products.AddRange(products);
+                    context.SaveChanges();
                 }
             }
         }

@@ -46,6 +46,12 @@ namespace mvc_project.Repositories.Categories
             return model;
         }
 
+        public async Task<Category?> GetByNameAsync(string name)
+        {
+            var model = await _context.Categories.FirstOrDefaultAsync(c => c.Name == name);
+            return model;
+        }
+
         public async Task<List<Category>> GetAllAsync()
         {
             var models = await _context.Categories.ToListAsync();

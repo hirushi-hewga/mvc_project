@@ -1,24 +1,14 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using mvc_project.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using mvc_project.Models;
+using mvc_project.Repositories.Categories;
 
 namespace mvc_project.Controllers
 {
-    public class CategoryController : Controller
+    public class CategoryController(ICategoryRepository categoryRepository) : Controller
     {
-        private readonly AppDbContext _context;
-
-        public CategoryController(AppDbContext context)
+        public async Task<IActionResult> IndexAsync()
         {
-            _context = context;
-        }
-
-        public IActionResult Index()
-        {
-            var categories = _context.Categories.AsEnumerable();
+            var categories = await categoryRepository.GetAllAsync();
             return View(categories);
         }
 
@@ -27,47 +17,35 @@ namespace mvc_project.Controllers
             return View(new CategoryCreateViewModel());
         }
 
-        public IActionResult Edit(string id)
+        public async Task<IActionResult> EditAsync(string id)
         {
-            if (id == null)
-            {
+            var category = await categoryRepository.GetByIdAsync(id);
+            
+            if (category == null)
                 return NotFound();
-            }
-
+            
             var viewModel = new CategoryCreateViewModel
             {
-                Category = _context.Categories.FirstOrDefault(c => c.Id == id),
+                Category = category,
                 IsEdit = true
             };
-
-            if (viewModel.Category == null)
-            {
-                return NotFound();
-            }
 
             return View("Create", viewModel);
         }
 
-        public IActionResult Delete(string id)
+        public async Task<IActionResult> DeleteAsync(string id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var category = _context.Categories.FirstOrDefault(c => c.Id == id);
+            var category = await categoryRepository.GetByIdAsync(id);
 
             if (category == null)
-            {
                 return NotFound();
-            }
 
             return View(category);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CategoryCreateViewModel viewModel)
+        public async Task<IActionResult> CreateAsync(CategoryCreateViewModel viewModel)
         {
             var errors = CategoryValidate(viewModel.Category);
             if (errors.Any())
@@ -78,15 +56,15 @@ namespace mvc_project.Controllers
 
             var category = viewModel.Category;
             category.Id = Guid.NewGuid().ToString();
-            _context.Categories.Add(category);
-            _context.SaveChanges();
+            
+            await categoryRepository.CreateAsync(category);
 
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(CategoryCreateViewModel viewModel)
+        public async Task<IActionResult> EditAsync(CategoryCreateViewModel viewModel)
         {
             var errors = CategoryValidate(viewModel.Category);
             if (errors.Any())
@@ -96,18 +74,19 @@ namespace mvc_project.Controllers
                 return View("Create", viewModel);
             }
 
-            _context.Categories.Update(viewModel.Category);
-            _context.SaveChanges();
+            await categoryRepository.UpdateAsync(viewModel.Category);
 
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(Category model)
+        public async Task<IActionResult> DeleteAsync(Category model)
         {
-            _context.Categories.Remove(model);
-            _context.SaveChanges();
+            if (model.Id == null)
+                return NotFound();
+            
+            await categoryRepository.DeleteAsync(model.Id);
 
             return RedirectToAction("Index");
         }

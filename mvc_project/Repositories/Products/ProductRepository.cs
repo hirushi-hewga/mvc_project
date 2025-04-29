@@ -49,6 +49,14 @@ namespace mvc_project.Repositories.Products
             return model;
         }
 
+        public async Task<List<Product>> GetByCategoryAsync(string name)
+        {
+            var models = await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.Category.Name == name).ToListAsync();
+            return models;
+        }
+
         public async Task<List<Product>> GetAllAsync()
         {
             var models = await _context.Products
