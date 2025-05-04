@@ -12,7 +12,7 @@ namespace mvc_project.Validators
                 .MaximumLength(100).WithMessage("Максимальна довжина 100 символів");
             
             RuleFor(p => p.Description)
-                .MaximumLength(255).WithMessage("Максимальна довжина 255 символів");
+                .MaximumLength(2000).WithMessage("Максимальна довжина 2000 символів");
 
             RuleFor(p => p.Price)
                 .GreaterThanOrEqualTo(0).WithMessage("Мінімальна ціна не менше 0");

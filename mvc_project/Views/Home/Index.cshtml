@@ -1,8 +1,27 @@
-﻿@{
+﻿@model HomeIndexViewModel
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="d-flex flex-column align-items-center">
+    <form asp-action="Index" method="post">
+        <div class="text-center pt-2">
+            <select asp-for="@Model.CategoryId" class="form-control" asp-items="@Model.Categories">
+            </select>
+            <input type="submit" value="Знайти" class="btn btn-danger"/>
+        </div>
+    </form>
+    @foreach (var product in Model.Products)
+    {
+        <div class="mt-3" style="width: 40%; border: 1px solid black;">
+            <img style="width: 100%;" alt="@product.Name" src="~/images/products/@(product.Image ?? "productDefault.png")"/>
+            <div class="text-center" style="background-color: #a6cae2">
+                <p class="m-0" style="font-weight: 600;">@product.Name</p>
+                <p class="m-0" style="font-size: 0.9em; color: dimgray;">@product.Category.Name</p>
+                <p class="m-0" style="font-weight: 600; font-size: 2em;">&#8372;@product.Amount</p>
+                <a asp-action="Details" asp-route-id="@product.Id" class="btn btn-warning m-3">Details</a>
+            </div>
+        </div>
+    }
 </div>

@@ -5,57 +5,22 @@ using mvc_project.Models;
 
 namespace mvc_project.Repositories.Categories
 {
-    public class CategoryRepository : ICategoryRepository
+    public class CategoryRepository 
+        : GenericRepository<Category, string>, ICategoryRepository
     {
         private readonly AppDbContext _context;
 
-        public CategoryRepository(AppDbContext context)
+        public CategoryRepository(AppDbContext context) 
+            : base(context)
         {
             _context = context;
         }
-        
-        public async Task<bool> CreateAsync(Category model)
-        {
-            await _context.Categories.AddAsync(model);
-            var result = await _context.SaveChangesAsync();
-            return result > 0;
-        }
 
-        public async Task<bool> UpdateAsync(Category model)
-        {
-            _context.Categories.Update(model);
-            var result = await _context.SaveChangesAsync();
-            return result > 0;
-        }
-
-        public async Task<bool> DeleteAsync(string id)
-        {
-            var model = await GetByIdAsync(id);
-
-            if (model == null)
-                return false;
-            
-            _context.Categories.Remove(model);
-            var result = await _context.SaveChangesAsync();
-            return result > 0;
-        }
-
-        public async Task<Category?> GetByIdAsync(string id)
-        {
-            var model = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
-            return model;
-        }
-
-        public async Task<Category?> GetByNameAsync(string name)
-        {
-            var model = await _context.Categories.FirstOrDefaultAsync(c => c.Name == name);
-            return model;
-        }
-
-        public async Task<List<Category>> GetAllAsync()
-        {
-            var models = await _context.Categories.ToListAsync();
-            return models;
-        }
+        // public async Task<Category?> GetByNameAsync(string name)
+        // {
+        //     var model = await _context.Categories.FirstOrDefaultAsync(c => c.Name == name);
+        //     return model;
+        // }
+        public IQueryable<Category> Categories => GetAll().Include(c => c.Products);
     }
 }

@@ -7,9 +7,9 @@ namespace mvc_project.Controllers
 {
     public class CategoryController(ICategoryRepository categoryRepository) : Controller
     {
-        public async Task<IActionResult> IndexAsync()
+        public IActionResult Index()
         {
-            var categories = await categoryRepository.GetAllAsync();
+            var categories = categoryRepository.GetAll();
             return View(categories);
         }
 
@@ -20,7 +20,7 @@ namespace mvc_project.Controllers
 
         public async Task<IActionResult> EditAsync(string id)
         {
-            var category = await categoryRepository.GetByIdAsync(id);
+            var category = await categoryRepository.FindByIdAsync(id);
             
             if (category == null)
                 return NotFound();
@@ -36,7 +36,7 @@ namespace mvc_project.Controllers
 
         public async Task<IActionResult> DeleteAsync(string id)
         {
-            var category = await categoryRepository.GetByIdAsync(id);
+            var category = await categoryRepository.FindByIdAsync(id);
 
             if (category == null)
                 return NotFound();

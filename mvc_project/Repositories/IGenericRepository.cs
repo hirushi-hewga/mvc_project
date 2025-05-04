@@ -10,6 +10,6 @@ namespace mvc_project.Repositories
         Task<bool> UpdateAsync(TModel model);
         Task<bool> DeleteAsync(TId id);
         Task<TModel?> FindByIdAsync(TId id);
-        Task<List<TModel>> GetAllAsync();
+        IQueryable<TModel> GetAll();
     }
 }

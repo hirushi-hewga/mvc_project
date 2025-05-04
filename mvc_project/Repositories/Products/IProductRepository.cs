@@ -4,13 +4,10 @@ using mvc_project.Models;
 namespace mvc_project.Repositories.Products
 {
     public interface IProductRepository
+        : IGenericRepository<Product, string>
     {
-        Task<bool> CreateAsync(Product model);
-        Task<bool> UpdateAsync(Product model);
-        Task<bool> DeleteAsync(string id);
-        Task<Product?> GetByIdAsync(string id);
-        Task<List<Product>> GetByCategoryAsync(string name);
-        Task<List<Product>> GetAllAsync();
+        IQueryable<Product> Products { get; }
+        Task<List<Product>> GetByCategoryIdAsync(string id);
         Task<List<SelectListItem>> GetCategoriesSelectListAsync();
     }
 }

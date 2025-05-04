@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using mvc_project.Data;
 using mvc_project.Models;
 using mvc_project.Repositories.Products;
 using mvc_project.Services.Image;
@@ -6,11 +9,11 @@ using mvc_project.Validators;
 
 namespace mvc_project.Controllers
 {
-    public class ProductController(IProductRepository productRepository, IImageService imageService) : Controller
+    public class ProductController(AppDbContext _context, IProductRepository productRepository, IImageService imageService) : Controller
     {
         public async Task<IActionResult> DeleteAsync(string id)
         {
-            var product = await productRepository.GetByIdAsync(id);
+            var product = await productRepository.FindByIdAsync(id);
 
             if (product == null)
                 return NotFound();
@@ -18,15 +21,15 @@ namespace mvc_project.Controllers
             return View(product);
         }
 
-        public async Task<IActionResult> IndexAsync()
+        public IActionResult Index()
         {
-            var products = await productRepository.GetAllAsync();
+            var products = productRepository.Products;
 
             return View(products);
         }
         public async Task<IActionResult> EditAsync(string id)
         {
-            var product = await productRepository.GetByIdAsync(id);
+            var product = await productRepository.FindByIdAsync(id);
             
             if (product == null)
                 return NotFound();
@@ -34,7 +37,7 @@ namespace mvc_project.Controllers
             var viewModel = new ProductCreateViewModel
             {
                 Product = product,
-                Categories = await productRepository.GetCategoriesSelectListAsync(),
+                Categories = await _context.Categories.Select(c => new SelectListItem { Text = c.Name, Value = c.Id.ToString() }).ToListAsync(),
                 IsEdit = true
             };
 
@@ -45,7 +48,7 @@ namespace mvc_project.Controllers
         {
             var viewModel = new ProductCreateViewModel
             {
-                Categories = await productRepository.GetCategoriesSelectListAsync()
+                Categories = await _context.Categories.Select(c => new SelectListItem { Text = c.Name, Value = c.Id.ToString() }).ToListAsync()
             };
             return View(viewModel);
         }
@@ -59,7 +62,7 @@ namespace mvc_project.Controllers
             
             if (!result.IsValid)
             {
-                viewModel.Categories = await productRepository.GetCategoriesSelectListAsync();
+                viewModel.Categories = await _context.Categories.Select(c => new SelectListItem { Text = c.Name, Value = c.Id.ToString() }).ToListAsync();
                 viewModel.Errors = result.Errors.Select(e => e.ErrorMessage).ToList();
                 return View(viewModel);
             }
@@ -86,7 +89,7 @@ namespace mvc_project.Controllers
 
             if (!result.IsValid)
             {
-                viewModel.Categories = await productRepository.GetCategoriesSelectListAsync();
+                viewModel.Categories = await _context.Categories.Select(c => new SelectListItem { Text = c.Name, Value = c.Id.ToString() }).ToListAsync();
                 viewModel.Errors = result.Errors.Select(e => e.ErrorMessage).ToList();
                 viewModel.IsEdit = true;
                 return View("Create", viewModel);

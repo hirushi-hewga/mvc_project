@@ -6,69 +6,33 @@ using mvc_project.Repositories.Categories;
 
 namespace mvc_project.Repositories.Products
 {
-    public class ProductRepository : IProductRepository
+    public class ProductRepository
+        : GenericRepository<Product, string>, IProductRepository
     {
         private readonly AppDbContext _context;
         private readonly ICategoryRepository _categoryRepository;
 
-        public ProductRepository(AppDbContext context, ICategoryRepository categoryRepository)
+        public ProductRepository(AppDbContext context, ICategoryRepository categoryRepository) 
+            : base(context)
         {
             _context = context;
             _categoryRepository = categoryRepository;
         }
         
-        public async Task<bool> CreateAsync(Product model)
-        {
-            await _context.Products.AddAsync(model);
-            var result = await _context.SaveChangesAsync();
-            return result > 0;
-        }
+        public IQueryable<Product> Products => GetAll().Include(p => p.Category);
 
-        public async Task<bool> UpdateAsync(Product model)
-        {
-            _context.Products.Update(model);
-            var result = await _context.SaveChangesAsync();
-            return result > 0;
-        }
-
-        public async Task<bool> DeleteAsync(string id)
-        {
-            var model = await GetByIdAsync(id);
-
-            if (model == null)
-                return false;
-            
-            _context.Products.Remove(model);
-            var result = await _context.SaveChangesAsync();
-            return result > 0;
-        }
-
-        public async Task<Product?> GetByIdAsync(string id)
-        {
-            var model = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
-            return model;
-        }
-
-        public async Task<List<Product>> GetByCategoryAsync(string name)
+        public async Task<List<Product>> GetByCategoryIdAsync(string id)
         {
             var models = await _context.Products
                 .Include(p => p.Category)
-                .Where(p => p.Category.Name == name).ToListAsync();
-            return models;
-        }
-
-        public async Task<List<Product>> GetAllAsync()
-        {
-            var models = await _context.Products
-                .Include(p => p.Category)
-                .ToListAsync();
+                .Where(p => p.CategoryId == id).ToListAsync();
             return models;
         }
 
         public async Task<List<SelectListItem>> GetCategoriesSelectListAsync()
         {
-            var models = await _categoryRepository.GetAllAsync();
-            var result = models.Select(c => new SelectListItem { Text = c.Name, Value = c.Id.ToString() }).ToList();
+            var models = _categoryRepository.GetAll();
+            var result = await models.Select(c => new SelectListItem { Text = c.Name, Value = c.Id.ToString() }).ToListAsync();
             return result;
         }
     }
