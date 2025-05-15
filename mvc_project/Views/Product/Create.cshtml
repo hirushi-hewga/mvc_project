@@ -1,7 +1,7 @@
 ﻿@model ProductCreateViewModel
 
 <div style="width: 40%; margin: 0px auto; background-color: lightgoldenrodyellow; border-radius: 5px; padding: 10px; border: 2px solid black;">
-    <h1>@(Model.IsEdit ? "Редагування нового продукту" : "Створення нового продукту")</h1>
+    <h1 class="text-center my-3">@(Model.IsEdit ? "Редагування продукту" : "Створення продукту")</h1>
     <form asp-action=@(Model.IsEdit ? "Edit" : "Create") enctype="multipart/form-data" method="post" class="d-flex align-items-center flex-column">
         <input type="text" class="form-control" asp-for="Product.Id" hidden>
         <input type="text" class="form-control" asp-for="Product.Image" hidden/>
@@ -17,8 +17,9 @@
                 <input type="text" class="form-control" asp-for="Product.Name">
             </div>
             <div>
-                <label for="description" class="col-form-label">Опис</label>
-                <textarea asp-for="Product.Description" id="tinyeditor"></textarea>
+                <label for="category" class="col-form-label">Категорія</label>
+                <select asp-for="Product.CategoryId" class="form-control" asp-items="Model.Categories">
+                </select>
             </div>
             <div>
                 <label for="price" class="col-form-label">Ціна</label>
@@ -28,14 +29,16 @@
                 <label for="amount" class="col-form-label">Кількість</label>
                 <input type="number" class="form-control" asp-for="Product.Amount">
             </div>
+            @if (!Model.IsEdit)
+            {
+                <div>
+                    <label for="image" class="col-form-label">Зображення</label>
+                    <input type="file" class="form-control" asp-for="File">
+                </div>
+            }
             <div>
-                <label for="image" class="col-form-label">Зображення</label>
-                <input type="file" class="form-control" asp-for="File">
-            </div>
-            <div>
-                <label for="category" class="col-form-label">Категорія</label>
-                <select asp-for="Product.CategoryId" class="form-control" asp-items="Model.Categories">
-                </select>
+                <label for="description" class="col-form-label">Опис</label>
+                <textarea asp-for="Product.Description" id="tinyeditor"></textarea>
             </div>
         </div>
         <div style="text-align: center; padding-top: 10px;">

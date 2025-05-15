@@ -17,7 +17,7 @@ namespace mvc_project.Services.Image
                 string imageName = $"{Guid.NewGuid()}.{types[1]}";
                 string imagePath = Path.Combine(root, path, imageName);
 
-                using (var fileStream = System.IO.File.Create(imagePath))
+                using (var fileStream = File.Create(imagePath))
                 {
                     using (var stream = image.OpenReadStream())
                     {

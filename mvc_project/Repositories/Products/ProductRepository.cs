@@ -21,7 +21,17 @@ namespace mvc_project.Repositories.Products
         
         public IQueryable<Product> Products => GetAll().Include(p => p.Category);
 
-        public async Task<List<Product>> GetByCategoryIdAsync(string id)
+        public IQueryable<Product> GetByCategoryId(string categoryId)
+        {
+            var products = Products.Where(p => 
+                p.Category == null ? false 
+                : p.Category.Id == null ? false
+                : p.Category.Id == categoryId);
+            
+            return products;
+        }
+
+        public async Task<List<Product>> FindByCategoryIdAsync(string id)
         {
             var models = await _context.Products
                 .Include(p => p.Category)

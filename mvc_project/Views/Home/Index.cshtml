@@ -5,23 +5,78 @@
 }
 
 <div class="d-flex flex-column align-items-center">
+    <a href="@Url.Action("Index", new { Category = "" })">Всі товари</a>
     <form asp-action="Index" method="post">
-        <div class="text-center pt-2">
+        <div class="text-center pt-2 d-flex ">
             <select asp-for="@Model.CategoryId" class="form-control" asp-items="@Model.Categories">
+                <option value="" selected>Всі товари</option>
             </select>
-            <input type="submit" value="Знайти" class="btn btn-danger"/>
+            <input type="submit" value="Знайти" class="btn btn-danger ms-1"/>
         </div>
     </form>
-    @foreach (var product in Model.Products)
-    {
-        <div class="mt-3" style="width: 40%; border: 1px solid black;">
-            <img style="width: 100%;" alt="@product.Name" src="~/images/products/@(product.Image ?? "productDefault.png")"/>
-            <div class="text-center" style="background-color: #a6cae2">
-                <p class="m-0" style="font-weight: 600;">@product.Name</p>
-                <p class="m-0" style="font-size: 0.9em; color: dimgray;">@product.Category.Name</p>
-                <p class="m-0" style="font-weight: 600; font-size: 2em;">&#8372;@product.Amount</p>
-                <a asp-action="Details" asp-route-id="@product.Id" class="btn btn-warning m-3">Details</a>
-            </div>
+    <div class="container py-5">
+        <div class="row">
+            @foreach (var product in Model.Products)
+            {
+                <div class="col-md-12 col-lg-3 mb-4 mb-lg-2">
+                    <a asp-action="Details" asp-route-id="@product.Id">
+                        <div class="card h-100 shadow product-home-card">
+                            <div class="text-center">
+                                <img class="mt-4 mb-2" style="width: 90%;" alt="@product.Name"
+                                     src="~/images/products/@(product.Image ?? "productDefault.png")"/>
+                            </div>
+                            <div class="card-body h-100 mb-0">
+                                <div class="d-flex justify-content-start">
+                                    <p class="small">
+                                        <a href="@Url.Action("Index", new { categoryId = @product.CategoryId })" class="product-category-link">@product.Category?.Name</a>
+                                    </p>
+                                </div>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <h6 class="mb-0 me-3">@product.Name</h6>
+                                    <h5 class="text-dark mb-0">@(product.Price.ToString().Split(',')[0])&#8372;</h5>
+                                </div>
+                            </div>
+                            <p class="text-end text-muted pe-3">Available: <span class="fw-bold">@product.Amount</span></p>
+                        </div>
+                    </a>
+                </div>
+            }
         </div>
-    }
+    </div>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            @if (Model.Page > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("Index", new { page = Model.Page - 1, categoryId = Model.CategoryId })" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            }
+            @if (Model.PagesCount > 1)
+            {
+                @for (int i = 1; i <= Model.PagesCount; i++)
+                {
+                    <li class="page-item @(Model.Page == i ? "active" : "")">
+                        @if (Model.Page == i)
+                        {
+                            <span style="cursor: pointer;" class="page-link">@i</span>
+                        }
+                        else
+                        {
+                            <a class="page-link" href="@Url.Action("Index", new { page = i, categoryId = Model.CategoryId })">@i</a>
+                        }
+                    </li>
+                }
+            }
+            @if (Model.Page < Model.PagesCount)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("Index", new { page = Model.Page + 1, categoryId = Model.CategoryId })" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
 </div>

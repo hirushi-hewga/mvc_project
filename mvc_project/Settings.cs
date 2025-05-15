@@ -2,6 +2,6 @@
 {
     public static class Settings
     {
-        public const string PRODUCTS_PATH = "products/images";
+        public const string PRODUCTS_PATH = "images/products";
     }
 }

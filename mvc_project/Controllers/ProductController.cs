@@ -9,7 +9,7 @@ using mvc_project.Validators;
 
 namespace mvc_project.Controllers
 {
-    public class ProductController(AppDbContext _context, IProductRepository productRepository, IImageService imageService) : Controller
+    public class ProductController(IProductRepository productRepository, IImageService imageService) : Controller
     {
         public async Task<IActionResult> DeleteAsync(string id)
         {
@@ -37,7 +37,7 @@ namespace mvc_project.Controllers
             var viewModel = new ProductCreateViewModel
             {
                 Product = product,
-                Categories = await _context.Categories.Select(c => new SelectListItem { Text = c.Name, Value = c.Id.ToString() }).ToListAsync(),
+                Categories = await productRepository.GetCategoriesSelectListAsync(),
                 IsEdit = true
             };
 
@@ -48,7 +48,7 @@ namespace mvc_project.Controllers
         {
             var viewModel = new ProductCreateViewModel
             {
-                Categories = await _context.Categories.Select(c => new SelectListItem { Text = c.Name, Value = c.Id.ToString() }).ToListAsync()
+                Categories = await productRepository.GetCategoriesSelectListAsync()
             };
             return View(viewModel);
         }
@@ -60,9 +60,9 @@ namespace mvc_project.Controllers
             var validator = new ProductValidator();
             var result = await validator.ValidateAsync(viewModel.Product);
             
-            if (!result.IsValid)
+            if (!result.IsValid || !ModelState.IsValid)
             {
-                viewModel.Categories = await _context.Categories.Select(c => new SelectListItem { Text = c.Name, Value = c.Id.ToString() }).ToListAsync();
+                viewModel.Categories = await productRepository.GetCategoriesSelectListAsync();
                 viewModel.Errors = result.Errors.Select(e => e.ErrorMessage).ToList();
                 return View(viewModel);
             }
@@ -87,9 +87,9 @@ namespace mvc_project.Controllers
             var validator = new ProductValidator();
             var result = await validator.ValidateAsync(viewModel.Product);
 
-            if (!result.IsValid)
+            if (!result.IsValid || !ModelState.IsValid)
             {
-                viewModel.Categories = await _context.Categories.Select(c => new SelectListItem { Text = c.Name, Value = c.Id.ToString() }).ToListAsync();
+                viewModel.Categories = await productRepository.GetCategoriesSelectListAsync();
                 viewModel.Errors = result.Errors.Select(e => e.ErrorMessage).ToList();
                 viewModel.IsEdit = true;
                 return View("Create", viewModel);

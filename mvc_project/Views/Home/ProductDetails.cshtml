@@ -5,9 +5,12 @@
 
 <div class="d-flex flex-column align-items-center">
     <h1>@Model.Name</h1>
-    <img style="width: 50%; border: 1px solid black;" alt="@Model.Name" src="~/images/products/@(Model.Image ?? "productDefault.png")"/>
-    <p>Amount: &#8372;@Model.Amount</p>
-    <div style="width: 80%; background-color: #cccccc">
+    <img class="w-50" style="border: 1px solid black;" alt="@Model.Name" src="~/images/products/@(Model.Image ?? "productDefault.png")"/>
+    <div class="w-50 fs-0.5 fw-bold d-flex justify-content-between">
+        <p>Amount: @Model.Amount</p>
+        <p>Price: &#8372;@Model.Price</p>
+    </div>
+    <div class="p-3" style="width: 80%; background-color: #cccccc">
         <h2 class="text-center mb-4">Опис</h2>
         @Html.Raw(Model.Description)
     </div>

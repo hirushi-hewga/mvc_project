@@ -20,3 +20,22 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.product-home-card {
+  transition: ease-in-out 0.2s;
+}
+
+.product-home-card:hover {
+  transform: scale(1.02, 1.02);
+  cursor: pointer;
+}
+
+.product-category-link {
+  text-decoration: none;
+  color: grey;
+}
+
+.product-category-link:hover {
+  text-decoration: underline;
+  color: grey;
+}

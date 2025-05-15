@@ -17,13 +17,28 @@ namespace mvc_project.Controllers
             _productRepository = productRepository;
         }
 
-        public async Task<IActionResult> IndexAsync()
+        public async Task<IActionResult> IndexAsync(string? categoryId = "", int page = 1)
         {
+            var products = string.IsNullOrEmpty(categoryId)
+                ? _productRepository.Products
+                : _productRepository.GetByCategoryId(categoryId).Include(p => p.Category);
+            
+            int pageSize = 12;
+            int pagesCount = (int)Math.Ceiling(products.Count() / (double)pageSize);
+            page = page <= 0 || page > pagesCount ? 1 : page;
+            products = products.Skip((page - 1) * pageSize).Take(pageSize);
+            
             var viewModel = new HomeIndexViewModel
             {
-                Products = await _productRepository.Products.ToListAsync(),
-                Categories = await _productRepository.GetCategoriesSelectListAsync()
+                Products = await products.ToListAsync(),
+                Categories = await _productRepository.GetCategoriesSelectListAsync(),
+                CategoryId = categoryId,
+                Page = page,
+                PagesCount = pagesCount
             };
+            
+            var pages = viewModel.Products.Count / pageSize;
+            
             return View(viewModel);
         }
 
@@ -52,20 +67,6 @@ namespace mvc_project.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-        
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> IndexAsync(HomeIndexViewModel viewModel)
-        {
-            viewModel.Categories = await _productRepository.GetCategoriesSelectListAsync();
-            if (viewModel.CategoryId == null)
-            {
-                return View(viewModel);
-            }
-            
-            viewModel.Products = await _productRepository.GetByCategoryIdAsync(viewModel.CategoryId);
-            return View(viewModel);
         }
     }
 }

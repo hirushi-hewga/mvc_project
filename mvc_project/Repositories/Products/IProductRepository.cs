@@ -7,7 +7,8 @@ namespace mvc_project.Repositories.Products
         : IGenericRepository<Product, string>
     {
         IQueryable<Product> Products { get; }
-        Task<List<Product>> GetByCategoryIdAsync(string id);
+        IQueryable<Product> GetByCategoryId(string categoryId);
+        Task<List<Product>> FindByCategoryIdAsync(string id);
         Task<List<SelectListItem>> GetCategoriesSelectListAsync();
     }
 }
