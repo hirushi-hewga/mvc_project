@@ -16,29 +16,47 @@
     </form>
     <div class="container py-5">
         <div class="row">
-            @foreach (var product in Model.Products)
+            @foreach (var item in Model.Products)
             {
-                <div class="col-md-12 col-lg-3 mb-4 mb-lg-2">
-                    <a asp-action="Details" asp-route-id="@product.Id">
-                        <div class="card h-100 shadow product-home-card">
+                <div id="@item.Product.Id" class="col-md-12 col-lg-3 mb-4 mb-lg-2">
+                    <div class="card h-100 shadow product-home-card">
+                        <a asp-action="Details" asp-route-id="@item.Product.Id">
                             <div class="text-center">
-                                <img class="mt-4 mb-2" style="width: 90%;" alt="@product.Name"
-                                     src="~/images/products/@(product.Image ?? "productDefault.png")"/>
+                                <img class="mt-4 mb-2" style="width: 90%;" alt="@item.Product.Name"
+                                     src="~/images/products/@(item.Product.Image ?? "productDefault.png")"/>
                             </div>
-                            <div class="card-body h-100 mb-0">
-                                <div class="d-flex justify-content-start">
-                                    <p class="small">
-                                        <a href="@Url.Action("Index", new { categoryId = @product.CategoryId })" class="product-category-link">@product.Category?.Name</a>
-                                    </p>
-                                </div>
-                                <div class="d-flex justify-content-between mb-3">
-                                    <h6 class="mb-0 me-3">@product.Name</h6>
-                                    <h5 class="text-dark mb-0">@(product.Price.ToString().Split(',')[0])&#8372;</h5>
-                                </div>
+                        </a>
+                        <div class="card-body h-100 mb-0">
+                            <div class="d-flex justify-content-start">
+                                <p class="small">
+                                    <a href="@Url.Action("Index", new { categoryId = @item.Product.CategoryId })" class="product-category-link">@item.Product.Category?.Name</a>
+                                </p>
                             </div>
-                            <p class="text-end text-muted pe-3">Available: <span class="fw-bold">@product.Amount</span></p>
+                            <div class="d-flex justify-content-between mb-3">
+                                <a style="text-decoration: none;" asp-action="Details" asp-route-id="@item.Product.Id">
+                                    <h6 class="mb-0 me-3 text-dark">@item.Product.Name</h6>
+                                </a>
+                                <h5 class="text-dark mb-0">@(item.Product.Price.ToString().Split(',')[0])&#8372;</h5>
+                            </div>
+                            <div class="text-end pe-2 home-cart-button">
+                                @if (item.InCart)
+                                {
+                                    <button onclick="removeFromCart('@item.Product.Id')" class="btn btn-danger">
+                                        <i class="bi bi-cart-dash-fill"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button onclick="addToCart('@item.Product.Id')" class="btn btn-warning">
+                                        <i class="bi bi-cart-plus-fill"></i>
+                                    </button>
+                                }
+                            </div>
                         </div>
-                    </a>
+                        <p class="text-end pe-3 @(item.Product.Amount == 0 ? "text-danger" : "text-muted")">
+                            Available: <span class="fw-bold">@item.Product.Amount</span>
+                        </p>
+                    </div>
                 </div>
             }
         </div>

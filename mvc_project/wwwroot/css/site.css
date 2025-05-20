@@ -39,3 +39,11 @@ body {
   text-decoration: underline;
   color: grey;
 }
+
+.home-cart-button {
+  text-decoration: none;
+}
+
+.home-cart-button:hover {
+  text-decoration: underline;
+}

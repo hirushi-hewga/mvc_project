@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using mvc_project.Models;
 using mvc_project.Repositories.Products;
+using mvc_project.Services.Cart;
 
 namespace mvc_project.Controllers
 {
@@ -10,11 +11,13 @@ namespace mvc_project.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IProductRepository _productRepository;
+        private readonly ICartService _cartService;
 
-        public HomeController(ILogger<HomeController> logger, IProductRepository productRepository)
+        public HomeController(ILogger<HomeController> logger, IProductRepository productRepository, ICartService cartService)
         {
             _logger = logger;
             _productRepository = productRepository;
+            _cartService = cartService;
         }
 
         public async Task<IActionResult> IndexAsync(string? categoryId = "", int page = 1)
@@ -27,10 +30,12 @@ namespace mvc_project.Controllers
             int pagesCount = (int)Math.Ceiling(products.Count() / (double)pageSize);
             page = page <= 0 || page > pagesCount ? 1 : page;
             products = products.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var cartItems = _cartService.GetItems().Select(i => i.ProductId);
             
             var viewModel = new HomeIndexViewModel
             {
-                Products = await products.ToListAsync(),
+                Products = await products.Select(p => new HomeProductItemVM{ Product = p, InCart = cartItems.Contains(p.Id)}).ToListAsync(),
                 Categories = await _productRepository.GetCategoriesSelectListAsync(),
                 CategoryId = categoryId,
                 Page = page,

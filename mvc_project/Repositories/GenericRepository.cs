@@ -32,7 +32,11 @@ namespace mvc_project.Repositories
 
         public async Task<bool> DeleteAsync(TId id)
         {
-            var model = await _context.Set<TModel>().FirstOrDefaultAsync();
+            var model = await FindByIdAsync(id);
+
+            if (model == null)
+                return false;
+
             _context.Set<TModel>().Remove(model);
             var result = await _context.SaveChangesAsync();
             return result > 0;

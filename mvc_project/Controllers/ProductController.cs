@@ -70,7 +70,7 @@ namespace mvc_project.Controllers
             string? fileName = null;
             if (viewModel.File != null)
             {
-                fileName = await imageService.SaveImageAsync(viewModel.File, Settings.PRODUCTS_PATH);
+                fileName = await imageService.SaveImageAsync(viewModel.File, Settings.ProductsImagesPath);
             }
             viewModel.Product.Image = fileName;
             viewModel.Product.Id = Guid.NewGuid().ToString();
@@ -106,7 +106,7 @@ namespace mvc_project.Controllers
         {
             if (model.Image != null)
             {
-                imageService.DeleteImage(Path.Combine(Settings.PRODUCTS_PATH, model.Image));
+                imageService.DeleteImage(Path.Combine(Settings.ProductsImagesPath, model.Image));
             }
             
             if (model.Id == null)
