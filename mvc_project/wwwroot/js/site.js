@@ -20,12 +20,12 @@ function postRequest(url, data)
         .catch(e => console.error(e))
 }
 
-function addToCart(productId)
+function addToCart(productId, productName = '', productPrice = 0)
 {
-    postRequest('/Cart/AddToCart', JSON.stringify({ productId: productId, count: 1 }))
+    postRequest('/Cart/AddToCart', JSON.stringify({ productId: productId, name: productName, price: productPrice }))
 }
 
-function removeFromCart(productId)
+function removeFromCart(productId, productQuantity = 0)
 {
-    postRequest('/Cart/RemoveFromCart', JSON.stringify({ productId: productId, count: 1 }))
+    postRequest('/Cart/RemoveFromCart', JSON.stringify({ productId: productId, quantity: productQuantity }))
 }

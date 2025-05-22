@@ -18,15 +18,15 @@ namespace mvc_project.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var items = _cartService.GetItems().ToList();
+            
+            return View(items);
         }
         
         [HttpPost]
-        public async Task<IActionResult> AddToCartAsync([FromBody] CartItemVM viewModel)
+        public IActionResult AddToCart([FromBody] CartItemVM viewModel)
         {
-            var product = await _productRepository.FindByIdAsync(viewModel.ProductId);
-            
-            if (string.IsNullOrEmpty(viewModel.ProductId) || product?.Amount <= 0)
+            if (string.IsNullOrEmpty(viewModel.ProductId))
                 return BadRequest();
             
             _cartService.AddToCart(viewModel);
@@ -41,6 +41,12 @@ namespace mvc_project.Controllers
             
             _cartService.RemoveFromCart(viewModel);
             return Ok();
+        }
+        
+        public IActionResult ClearCart()
+        {
+            _cartService.ClearCart();
+            return View("Index", _cartService.GetItems().ToList());
         }
     }
 }

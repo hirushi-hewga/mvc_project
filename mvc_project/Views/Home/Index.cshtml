@@ -41,13 +41,13 @@
                             <div class="text-end pe-2 home-cart-button">
                                 @if (item.InCart)
                                 {
-                                    <button onclick="removeFromCart('@item.Product.Id')" class="btn btn-danger">
+                                    <button onclick="removeFromCart('@item.Product.Id', 1)" class="btn btn-danger">
                                         <i class="bi bi-cart-dash-fill"></i>
                                     </button>
                                 }
                                 else
                                 {
-                                    <button onclick="addToCart('@item.Product.Id')" class="btn btn-warning">
+                                    <button onclick="addToCart('@item.Product.Id', '@item.Product.Name', @item.Product.Price)" class="btn btn-warning">
                                         <i class="bi bi-cart-plus-fill"></i>
                                     </button>
                                 }

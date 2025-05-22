@@ -1,6 +1,51 @@
+@model List<CartItemVM>
+
 <div>
-    <h1>Cart</h1>
     <div>
-        
+        @if (Model.Any())
+        {
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Назва</th>
+                    <th>Ціна</th>
+                    <th>Кількість</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr id="item_@item.ProductId">
+                        <td>@item.Name</td>
+                        <td>@item.Price.ToString("C")</td>
+                        <td>
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                                <button type="button" class="btn btn-primary btn-sm"
+                                        @(item.Quantity <= 1 ? "disabled" : "")
+                                        onclick="removeFromCart('@item.ProductId')">-</button>
+                                <span style="border: 1px solid black" class="btn btn-outlined btn-sm text-dark">@item.Quantity</span>
+                                <button type="button" class="btn btn-primary btn-sm"
+                                        @(item.Quantity >= item.Amount ? "disabled" : "")
+                                        onclick="addToCart('@item.ProductId')">+</button>
+                            </div>
+                        </td>
+                        <td>
+                            <button onclick="removeFromCart('@item.ProductId', 1)" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            <div class="d-flex flex-row w-100">
+                <p><strong>Загальна сума: </strong>@Model.Sum(x => x.Price).ToString("C")</p>
+                <button class="btn btn-secondary ms-auto me-3">-_-</button>
+                <a asp-action="ClearCart" class="btn btn-danger me-4">Очистити кошик</a>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">Ваш кошик порожній.</p>
+        }
     </div>
 </div>

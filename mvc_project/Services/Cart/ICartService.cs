@@ -7,5 +7,6 @@ namespace mvc_project.Services.Cart
         void AddToCart(CartItemVM viewModel);
         void RemoveFromCart(CartItemVM viewModel);
         IEnumerable<CartItemVM> GetItems();
+        void ClearCart();
     }
 }
