@@ -7,5 +7,6 @@ namespace mvc_project.Data
     {
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Promocode> Promocodes { get; set; }
     }
 }

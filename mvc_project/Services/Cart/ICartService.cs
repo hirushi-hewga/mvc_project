@@ -8,5 +8,6 @@ namespace mvc_project.Services.Cart
         void RemoveFromCart(CartItemVM viewModel);
         IEnumerable<CartItemVM> GetItems();
         void ClearCart();
+        Task PlaceOrderAsync();
     }
 }

@@ -13,6 +13,18 @@ namespace mvc_project.Data.Initializer
                 
                 context.Database.Migrate();
 
+                if (!context.Promocodes.Any())
+                {
+                    var promocodes = new List<Promocode>
+                    {
+                        new Promocode{ Id = "SAVE10NOW", Discount = 10 },
+                        new Promocode{ Id = "FLASH15OFF", Discount = 15 },
+                        new Promocode{ Id = "DISCOUNT20", Discount = 20 },
+                        new Promocode{ Id = "BIGSALE30", Discount = 30 },
+                        new Promocode{ Id = "HALFPRICE", Discount = 50 }
+                    };
+                }
+
                 if (!context.Categories.Any())
                 {
                     var categories = new List<Category>

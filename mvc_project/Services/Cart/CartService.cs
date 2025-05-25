@@ -36,6 +36,8 @@ namespace mvc_project.Services.Cart
             else
             {
                 viewModel.Amount = _productRepository.Products.FirstOrDefault(p => p.Id == viewModel.ProductId).Amount;
+                if (viewModel.Amount <= 0)
+                    return;
                 list.Add(viewModel);
             }
             
@@ -93,6 +95,21 @@ namespace mvc_project.Services.Cart
             if (context == null)
                 return;
             context.Session.Clear();
+        }
+        
+        public async Task PlaceOrderAsync()
+        {
+            var items = GetItems().ToList();
+            foreach (var item in items)
+            {
+                var product = _productRepository.Products.FirstOrDefault(p => p.Id == item.ProductId);
+                if (product != null)
+                {
+                    product.Amount -= item.Quantity;
+                    await _productRepository.UpdateAsync(product);
+                }
+            }
+            ClearCart();
         }
     }
 }

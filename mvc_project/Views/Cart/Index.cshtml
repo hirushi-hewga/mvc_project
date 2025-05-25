@@ -39,7 +39,8 @@
             </table>
             <div class="d-flex flex-row w-100">
                 <p><strong>Загальна сума: </strong>@Model.Sum(x => x.Price).ToString("C")</p>
-                <button class="btn btn-secondary ms-auto me-3">-_-</button>
+                <input placeholder="Промокод"/>
+                <a asp-action="PlaceOrder" class="btn btn-secondary ms-auto me-3">Оформити замовлення</a>
                 <a asp-action="ClearCart" class="btn btn-danger me-4">Очистити кошик</a>
             </div>
         }

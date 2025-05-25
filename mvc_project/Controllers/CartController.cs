@@ -48,5 +48,11 @@ namespace mvc_project.Controllers
             _cartService.ClearCart();
             return View("Index", _cartService.GetItems().ToList());
         }
+
+        public async Task<IActionResult> PlaceOrderAsync()
+        {
+            await _cartService.PlaceOrderAsync();
+            return View("Index", _cartService.GetItems().ToList());
+        }
     }
 }
