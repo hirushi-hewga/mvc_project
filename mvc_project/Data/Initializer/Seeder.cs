@@ -23,6 +23,9 @@ namespace mvc_project.Data.Initializer
                         new Promocode{ Id = "BIGSALE30", Discount = 30 },
                         new Promocode{ Id = "HALFPRICE", Discount = 50 }
                     };
+                    
+                    context.Promocodes.AddRange(promocodes);
+                    context.SaveChanges();
                 }
 
                 if (!context.Categories.Any())

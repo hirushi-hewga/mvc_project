@@ -27,6 +27,7 @@ namespace mvc_project.Controllers
 
             return View(products);
         }
+        
         public async Task<IActionResult> EditAsync(string id)
         {
             var product = await productRepository.FindByIdAsync(id);

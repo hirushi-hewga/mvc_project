@@ -1,26 +1,48 @@
 using Microsoft.AspNetCore.Mvc;
 using mvc_project.Models;
-using mvc_project.Repositories.Products;
 using mvc_project.Services.Cart;
+using mvc_project.Services.PromoCode;
 
 namespace mvc_project.Controllers
 {
     public class CartController : Controller
     {
         private readonly ICartService _cartService;
-        private readonly IProductRepository _productRepository;
+        private readonly IPromoCodeService _promoCodeService;
 
-        public CartController(ICartService cartService, IProductRepository productRepository)
+        public CartController(ICartService cartService, IPromoCodeService promoCodeService)
         {
             _cartService = cartService;
-            _productRepository = productRepository;
+            _promoCodeService = promoCodeService;
         }
 
         public IActionResult Index()
         {
-            var items = _cartService.GetItems().ToList();
-            
-            return View(items);
+            var cartItems = _cartService.GetItems().ToList();
+            var viewModel = new CartVM
+            {
+                CartItems = cartItems,
+                Promocodes = _promoCodeService.GetAll().ToList(),
+                Promocode = _promoCodeService.GetPromoCode(),
+                Sum = cartItems.Sum(x => x.Price)
+            };
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddPromoCode(Promocode promocode)
+        {
+            _promoCodeService.SetPromoCode(promocode.Id);
+            var cartItems = _cartService.GetItems().ToList();
+            var viewModel = new CartVM
+            {
+                CartItems = cartItems,
+                Promocodes = _promoCodeService.GetAll().ToList(),
+                Promocode = _promoCodeService.GetPromoCode(),
+                Sum = cartItems.Sum(x => x.Price)
+            };
+            return View("Index", viewModel);
         }
         
         [HttpPost]
@@ -43,16 +65,18 @@ namespace mvc_project.Controllers
             return Ok();
         }
         
-        public IActionResult ClearCart()
+        public IActionResult ClearCart(CartVM viewModel)
         {
             _cartService.ClearCart();
-            return View("Index", _cartService.GetItems().ToList());
+            viewModel.CartItems = _cartService.GetItems().ToList();
+            return View("Index", viewModel);
         }
 
-        public async Task<IActionResult> PlaceOrderAsync()
+        public async Task<IActionResult> PlaceOrderAsync(CartVM viewModel)
         {
             await _cartService.PlaceOrderAsync();
-            return View("Index", _cartService.GetItems().ToList());
+            viewModel.CartItems = _cartService.GetItems().ToList();
+            return View("Index", viewModel);
         }
     }
 }

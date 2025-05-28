@@ -7,6 +7,5 @@ namespace mvc_project.Models
         public decimal Price { get; set; }
         public int Quantity { get; set; } = 1;
         public int Amount { get; set; } = 0;
-        public int Discount { get; set; } = 0;
     }
 }

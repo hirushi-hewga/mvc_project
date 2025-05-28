@@ -1,3 +1,4 @@
+using mvc_project.Data;
 using mvc_project.Models;
 using mvc_project.Repositories.Products;
 using mvc_project.Services.Session;
@@ -8,11 +9,13 @@ namespace mvc_project.Services.Cart
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IProductRepository _productRepository;
+        private readonly AppDbContext _dbContext;
 
-        public CartService(IHttpContextAccessor httpContextAccessor, IProductRepository productRepository)
+        public CartService(IHttpContextAccessor httpContextAccessor, IProductRepository productRepository, AppDbContext dbContext)
         {
             _httpContextAccessor = httpContextAccessor;
             _productRepository = productRepository;
+            _dbContext = dbContext;
         }
         
         public void AddToCart(CartItemVM viewModel)

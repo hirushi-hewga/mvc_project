@@ -5,6 +5,7 @@ using mvc_project.Repositories.Categories;
 using mvc_project.Repositories.Products;
 using mvc_project.Services.Cart;
 using mvc_project.Services.Image;
+using mvc_project.Services.PromoCode;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IPromoCodeService, PromoCodeService>();
 
 // Add repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
