@@ -42,7 +42,7 @@
                 <p style="text-decoration: @(Model.Promocode.Id == null ? "none" : "line-through")" class="ms-1">@Model.Sum.ToString("C")</p>
                 @if (Model.Promocode.Id != null)
                 {
-                   <p style="color: orange; font-size: 0.9em;" class="ms-2">@((Model.Sum - Model.Sum / 100 * Model.Promocode.Discount).ToString("C"))</p>
+                    <p style="color: orange; font-size: 0.9em;" class="ms-2">@((Model.Sum - Model.Sum / 100 * Model.Promocode.Discount).ToString("C"))</p>
                 }
                 <a asp-action="PlaceOrder" class="btn btn-secondary ms-auto me-3">Оформити замовлення</a>
                 <a asp-action="ClearCart" class="btn btn-danger me-4">Очистити кошик</a>

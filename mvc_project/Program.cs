@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using mvc_project.Data;
 using mvc_project.Data.Initializer;
@@ -27,6 +28,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer("name=SqlServerLocal");
 });
 
+// Add identity
+builder.Services
+    .AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders()
+    .AddDefaultUI();
+
 // Add session
 builder.Services.AddSession(options =>
 {
@@ -51,9 +59,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSession();
+
+app.MapRazorPages();
 
 app.MapControllerRoute(
     name: "default",
