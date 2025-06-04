@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using mvc_project.Data;
 using mvc_project.Data.Initializer;
+using mvc_project.Models.Identity;
 using mvc_project.Repositories.Categories;
 using mvc_project.Repositories.Products;
 using mvc_project.Services.Cart;
@@ -30,7 +31,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Add identity
 builder.Services
-    .AddIdentity<IdentityUser, IdentityRole>()
+    .AddIdentity<AppUser, IdentityRole>(options =>
+    {
+        options.Password.RequireUppercase = false;
+        
+        options.Lockout.AllowedForNewUsers = true;
+        options.Lockout.MaxFailedAccessAttempts = 3;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromSeconds(30);
+    })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders()
     .AddDefaultUI();
