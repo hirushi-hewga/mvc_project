@@ -1,4 +1,8 @@
-﻿@inject IHttpContextAccessor HttpContextAccessor
+﻿@using Microsoft.AspNetCore.Identity
+@using mvc_project.Models.Identity
+
+@inject IHttpContextAccessor HttpContextAccessor
+@inject SignInManager<AppUser> SignInManager
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,15 +34,19 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Info">Info</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Продукти</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Категорії</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="PromoCode" asp-action="Index">Промокоди</a>
-                        </li>
+                        @if (SignInManager.IsSignedIn(User) && User.IsInRole("admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Продукти</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Категорії</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="PromoCode" asp-action="Index">Промокоди</a>
+                            </li>
+                        }
+                        
                     </ul>
                     <ul class="navbar-nav align-items-center">
                         <li class="nav-item">

@@ -1,7 +1,10 @@
 using System.Diagnostics;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using mvc_project.Models;
+using mvc_project.Models.Identity;
 using mvc_project.Repositories.Products;
 using mvc_project.Services.Cart;
 
@@ -12,12 +15,18 @@ namespace mvc_project.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IProductRepository _productRepository;
         private readonly ICartService _cartService;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly SignInManager<AppUser> _signInManager;
 
-        public HomeController(ILogger<HomeController> logger, IProductRepository productRepository, ICartService cartService)
+        public HomeController(ILogger<HomeController> logger, IProductRepository productRepository, ICartService cartService, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<AppUser> signInManager)
         {
             _logger = logger;
             _productRepository = productRepository;
             _cartService = cartService;
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _signInManager = signInManager;
         }
 
         public async Task<IActionResult> IndexAsync(string? categoryId = "", int page = 1)
@@ -72,6 +81,35 @@ namespace mvc_project.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult AddToAdmin()
+        {
+            var user = User;
+            if (user != null)
+            {
+                if(user. Identity != null && user. Identity. IsAuthenticated)
+                {
+                    var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    
+                    var appUser = _userManager.FindByIdAsync(userId ?? "").Result;
+                    
+                    if (appUser == null)
+                        return RedirectToAction("Index");
+
+                    if (!_roleManager.RoleExistsAsync("admin").Result)
+                    {
+                        _roleManager.CreateAsync(new IdentityRole
+                        {
+                            Name = "admin"
+                        }).Wait();
+                    }
+                        
+                    _userManager.AddToRoleAsync(appUser, "admin").Wait();
+                }
+            }
+            
+            return RedirectToAction("Index");
         }
     }
 }
