@@ -2,36 +2,43 @@
 
 <div>
     <div>
-        @if (Model.CartItems.Any())
+        @if (Model.Items.Any() && Model.CartItems.Any())
         {
             <table class="table">
                 <thead>
                 <tr>
-                    <th>Назва</th>
-                    <th>Ціна</th>
+                    <th class="h5">Назва</th>
+                    <th>На складі</th>
                     <th>Кількість</th>
+                    <th>Ціна</th>
                     <th></th>
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (var item in Model.CartItems)
+                @foreach (var item in Model.Items)
                 {
-                    <tr id="item_@item.ProductId">
-                        <td>@item.Name</td>
-                        <td>@item.Price.ToString("C")</td>
+                    <tr style="height: 150px" id="item_@item.Id">
+                        <td>
+                            <img class="text-center" style="max-width: 150px;" src="~/images/products/@(item.Image ?? "productDefault.png")"/>
+                            @item.Name
+                        </td>
+                        <td>@item.Amount</td>
                         <td>
                             <div class="btn-group" role="group" aria-label="Basic example">
                                 <button type="button" class="btn btn-primary btn-sm"
-                                        @(item.Quantity <= 1 ? "disabled" : "")
-                                        onclick="removeFromCart('@item.ProductId')">-</button>
-                                <span style="border: 1px solid black" class="btn btn-outlined btn-sm text-dark">@item.Quantity</span>
+                                        @(Model.CartItems.FirstOrDefault(i => i.ProductId == item.Id).Quantity <= 1 ? "disabled" : "")
+                                        onclick="removeFromCart('@item.Id')">-</button>
+                                <span style="border: 1px solid black" class="btn btn-outlined btn-sm text-dark">
+                                    @Model.CartItems.FirstOrDefault(i => i.ProductId == item.Id).Quantity
+                                </span>
                                 <button type="button" class="btn btn-primary btn-sm"
-                                        @(item.Quantity >= item.Amount ? "disabled" : "")
-                                        onclick="addToCart('@item.ProductId')">+</button>
+                                        @(Model.CartItems.FirstOrDefault(i => i.ProductId == item.Id).Quantity >= item.Amount ? "disabled" : "")
+                                        onclick="addToCart('@item.Id')">+</button>
                             </div>
                         </td>
+                        <td>@item.Price.ToString("C")</td>
                         <td>
-                            <button onclick="removeFromCart('@item.ProductId', 1)" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
+                            <button onclick="removeFromCart('@item.Id', 1)" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>
                 }
@@ -49,8 +56,8 @@
             </div>
             <div>
                 <form asp-action="AddPromoCode" method="post">
-                    <input asp-for="Promocode.Id" type="text" class="my-3" placeholder="Промокод" value="@(Model.Promocode.Id != null ? Model.Promocode.Id : "")"/>
-                    <input type="submit" class="btn btn-secondary btn-sm ms-2" value="Активувати"/>
+                    <input asp-for="Promocode.Id" type="text" class="my-3" placeholder="Promocode" value="@(Model.Promocode.Id != null ? Model.Promocode.Id : "")"/>
+                    <input type="submit" class="btn btn-secondary btn-sm ms-2" value="Apply"/>
                 </form>
             </div>
         }

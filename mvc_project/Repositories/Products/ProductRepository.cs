@@ -39,6 +39,12 @@ namespace mvc_project.Repositories.Products
             return models;
         }
 
+        public Product? FindById(string id)
+        {
+            var product = Products.FirstOrDefault(p => p.Id == id);
+            return product;
+        }
+
         public async Task<List<SelectListItem>> GetCategoriesSelectListAsync()
         {
             var models = _categoryRepository.GetAll();

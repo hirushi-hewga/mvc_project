@@ -9,6 +9,7 @@ namespace mvc_project.Repositories.Products
         IQueryable<Product> Products { get; }
         IQueryable<Product> GetByCategoryId(string categoryId);
         Task<List<Product>> FindByCategoryIdAsync(string id);
+        Product? FindById(string id);
         Task<List<SelectListItem>> GetCategoriesSelectListAsync();
     }
 }

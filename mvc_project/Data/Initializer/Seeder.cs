@@ -12,6 +12,7 @@ namespace mvc_project.Data.Initializer
             using (var scope = app.ApplicationServices.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                 
                 context.Database.Migrate();
@@ -70,48 +71,45 @@ namespace mvc_project.Data.Initializer
                     context.SaveChanges();
                 }
 
-                if (!context.Roles.Any(r => r.Name == "admin"))
+                if (!context.Roles.Any())
                 {
-                    var role = new IdentityRole { Id = Guid.NewGuid().ToString(), Name = "admin" };
-                    roleManager.CreateAsync(role).Wait();
-                }
-                
-                if (!context.Roles.Any(r => r.Name == "user"))
-                {
-                    var role = new IdentityRole { Id = Guid.NewGuid().ToString(), Name = "user" };
-                    roleManager.CreateAsync(role).Wait();
+                    var adminRole = new IdentityRole { Name = Settings.RoleAdmin };
+                    var userRole = new IdentityRole { Name = Settings.RoleUser };
+                    
+                    roleManager.CreateAsync(adminRole).Wait();
+                    roleManager.CreateAsync(userRole).Wait();
                 }
 
                 if (!context.Users.Any())
                 {
-                    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
                     
                     var admin = new AppUser
                     {
                         Id = Guid.NewGuid().ToString(),
                         Email = "admin@gmail.com",
                         UserName = "admin",
+                        FirstName = "admin",
+                        LastName = "admin",
                         PhoneNumber = "+380111111111",
                         Age = 20
                     };
+                    
                     var user = new AppUser
                     {
                         Id = Guid.NewGuid().ToString(),
                         Email = "user@gmail.com",
                         UserName = "user",
+                        FirstName = "user",
+                        LastName = "user",
                         PhoneNumber = "+380222222222",
                         Age = 20
                     };
-                    var resultAdmin = userManager.CreateAsync(admin, "qwerty").Result;
-                    if (resultAdmin.Succeeded)
-                    {
-                        userManager.AddToRoleAsync(admin, "admin").Wait();
-                    }
-                    var resultUser = userManager.CreateAsync(user, "qwerty").Result;
-                    if (resultUser.Succeeded)
-                    {
-                        userManager.AddToRoleAsync(user, "user").Wait();
-                    }
+                    
+                    userManager.CreateAsync(admin, "qwerty").Wait();
+                    userManager.CreateAsync(user, "qwerty").Wait();
+                    
+                    userManager.AddToRoleAsync(admin, "admin").Wait();
+                    userManager.AddToRoleAsync(user, "user").Wait();
                 }
             }
         }

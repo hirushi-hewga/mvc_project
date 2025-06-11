@@ -47,7 +47,7 @@
                                 }
                                 else
                                 {
-                                    <button onclick="addToCart('@item.Product.Id', '@item.Product.Name', @item.Product.Price)" 
+                                    <button onclick="addToCart('@item.Product.Id', '@item.Product.Name', @item.Product.Price, '@item.Product.Image')" 
                                             class="btn btn-warning" @(item.Product.Amount == 0 ? "disabled" : "")>
                                         <i class="bi bi-cart-plus-fill"></i>
                                     </button>

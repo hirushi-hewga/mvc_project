@@ -19,12 +19,14 @@ namespace mvc_project.Controllers
         public IActionResult Index()
         {
             var cartItems = _cartService.GetItems().ToList();
+            var items = _cartService.ToProducts(cartItems).ToList();
             var viewModel = new CartVM
             {
+                Items = items,
                 CartItems = cartItems,
                 Promocodes = _promoCodeService.GetAll().ToList(),
                 Promocode = _promoCodeService.GetPromoCode(),
-                Sum = cartItems.Sum(x => x.Price)
+                Sum = cartItems.Sum(x => x.Quantity * items.First(i => i.Id == x.ProductId).Price)
             };
             return View(viewModel);
         }
@@ -35,12 +37,14 @@ namespace mvc_project.Controllers
         {
             _promoCodeService.SetPromoCode(promocode.Id);
             var cartItems = _cartService.GetItems().ToList();
+            var items = _cartService.ToProducts(cartItems).ToList();
             var viewModel = new CartVM
             {
+                Items = items,
                 CartItems = cartItems,
                 Promocodes = _promoCodeService.GetAll().ToList(),
                 Promocode = _promoCodeService.GetPromoCode(),
-                Sum = cartItems.Sum(x => x.Price)
+                Sum = cartItems.Sum(x => x.Quantity * items.First(i => i.Id == x.ProductId).Price)
             };
             return View("Index", viewModel);
         }
@@ -68,14 +72,18 @@ namespace mvc_project.Controllers
         public IActionResult ClearCart(CartVM viewModel)
         {
             _cartService.ClearCart();
-            viewModel.CartItems = _cartService.GetItems().ToList();
+            var cartItems = _cartService.GetItems().ToList();
+            viewModel.Items = _cartService.ToProducts(cartItems).ToList();
+            viewModel.CartItems = cartItems;
             return View("Index", viewModel);
         }
 
         public async Task<IActionResult> PlaceOrderAsync(CartVM viewModel)
         {
             await _cartService.PlaceOrderAsync();
-            viewModel.CartItems = _cartService.GetItems().ToList();
+            var cartItems = _cartService.GetItems().ToList();
+            viewModel.Items = _cartService.ToProducts(cartItems).ToList();
+            viewModel.CartItems = cartItems;
             return View("Index", viewModel);
         }
     }

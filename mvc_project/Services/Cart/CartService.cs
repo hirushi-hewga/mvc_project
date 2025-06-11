@@ -9,13 +9,11 @@ namespace mvc_project.Services.Cart
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IProductRepository _productRepository;
-        private readonly AppDbContext _dbContext;
 
-        public CartService(IHttpContextAccessor httpContextAccessor, IProductRepository productRepository, AppDbContext dbContext)
+        public CartService(IHttpContextAccessor httpContextAccessor, IProductRepository productRepository)
         {
             _httpContextAccessor = httpContextAccessor;
             _productRepository = productRepository;
-            _dbContext = dbContext;
         }
         
         public void AddToCart(CartItemVM viewModel)
@@ -27,19 +25,21 @@ namespace mvc_project.Services.Cart
 
             var items = session.Get<IEnumerable<CartItemVM>>(Settings.SessionCartKey);
             var list = items == null ? new List<CartItemVM>() : items.ToList();
+            
+            var product = _productRepository.FindById(viewModel.ProductId);
+            if (product == null)
+                return;
 
             if (list.Exists(i => i.ProductId == viewModel.ProductId))
             {
                 var index = list.FindIndex(i => i.ProductId == viewModel.ProductId);
-                if (list[index].Quantity == list[index].Amount)
+                if (list[index].Quantity == product.Amount)
                     return;
-                list[index].Price += list[index].Price / list[index].Quantity;
                 list[index].Quantity++;
             }
             else
             {
-                viewModel.Amount = _productRepository.Products.FirstOrDefault(p => p.Id == viewModel.ProductId).Amount;
-                if (viewModel.Amount <= 0)
+                if (product.Amount <= 0)
                     return;
                 list.Add(viewModel);
             }
@@ -61,7 +61,6 @@ namespace mvc_project.Services.Cart
             if (list.FirstOrDefault(i => i.ProductId == viewModel.ProductId)?.Quantity > 1 && viewModel.Quantity != 1)
             {
                 var index = list.FindIndex(i => i.ProductId == viewModel.ProductId);
-                list[index].Price -= list[index].Price / list[index].Quantity;
                 list[index].Quantity--;
             }
             else
@@ -83,6 +82,24 @@ namespace mvc_project.Services.Cart
             return items ?? new List<CartItemVM>();
         }
 
+        public IEnumerable<Product> ToProducts(IEnumerable<CartItemVM> items)
+        {
+            var products = _productRepository.Products.Where(p => items.Select(i => i.ProductId).Contains(p.Id)).ToList();
+            return products;
+        }
+
+
+        public CartItemVM? FindById(string id)
+        {
+            var context = _httpContextAccessor.HttpContext;
+            if (context == null)
+                return null;
+            var session = context.Session;
+            
+            var item = session.Get<IEnumerable<CartItemVM>>(Settings.SessionCartKey).FirstOrDefault(i => i.ProductId == id);
+            return item;
+        }
+
         public static int GetCount(HttpContext? context)
         {
             if (context == null)
@@ -102,15 +119,14 @@ namespace mvc_project.Services.Cart
         
         public async Task PlaceOrderAsync()
         {
-            var items = GetItems().ToList();
+            var items = ToProducts(GetItems()).ToList();
             foreach (var item in items)
             {
-                var product = _productRepository.Products.FirstOrDefault(p => p.Id == item.ProductId);
-                if (product != null)
-                {
-                    product.Amount -= item.Quantity;
-                    await _productRepository.UpdateAsync(product);
-                }
+                var cartItem = FindById(item.Id);
+                if (cartItem == null)
+                    return;
+                item.Amount -= cartItem.Quantity;
+                await _productRepository.UpdateAsync(item);
             }
             ClearCart();
         }
