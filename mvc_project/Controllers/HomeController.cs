@@ -32,9 +32,10 @@ namespace mvc_project.Controllers
 
         public async Task<IActionResult> IndexAsync(string? categoryId = "", int page = 1)
         {
-            var products = string.IsNullOrEmpty(categoryId)
+            var products = (string.IsNullOrEmpty(categoryId)
                 ? _productRepository.Products
-                : _productRepository.GetByCategoryId(categoryId).Include(p => p.Category);
+                : _productRepository.GetByCategoryId(categoryId).Include(p => p.Category)
+                ).OrderByDescending(p => p.Amount).AsQueryable();
             
             int pageSize = 12;
             int pagesCount = (int)Math.Ceiling(products.Count() / (double)pageSize);

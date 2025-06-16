@@ -2,7 +2,7 @@
 
 <div>
     <div>
-        @if (Model.Items.Any() && Model.CartItems.Any())
+        @if (Model.Items.Any())
         {
             <table class="table">
                 <thead>
@@ -17,28 +17,30 @@
                 <tbody>
                 @foreach (var item in Model.Items)
                 {
-                    <tr style="height: 150px" id="item_@item.Id">
+                    <tr style="height: 120px" id="item_@item.Product.Id">
                         <td>
-                            <img class="text-center" style="max-width: 150px;" src="~/images/products/@(item.Image ?? "productDefault.png")"/>
-                            @item.Name
+                            <div class="d-flex align-items-center">
+                                <img class="text-center" style="max-width: 120px;" src="~/images/products/@(item.Product.Image ?? "productDefault.png")"/>
+                                <p class="ms-4">@item.Product.Name</p>
+                            </div>
                         </td>
-                        <td>@item.Amount</td>
+                        <td>
+                            @item.Product.Amount
+                        </td>
                         <td>
                             <div class="btn-group" role="group" aria-label="Basic example">
                                 <button type="button" class="btn btn-primary btn-sm"
-                                        @(Model.CartItems.FirstOrDefault(i => i.ProductId == item.Id).Quantity <= 1 ? "disabled" : "")
-                                        onclick="removeFromCart('@item.Id')">-</button>
-                                <span style="border: 1px solid black" class="btn btn-outlined btn-sm text-dark">
-                                    @Model.CartItems.FirstOrDefault(i => i.ProductId == item.Id).Quantity
-                                </span>
+                                        @(item.Quantity <= 1 ? "disabled" : "")
+                                        onclick="removeFromCart('@item.Product.Id')">-</button>
+                                <span style="border: 1px solid black" class="btn btn-outlined btn-sm text-dark">@item.Quantity</span>
                                 <button type="button" class="btn btn-primary btn-sm"
-                                        @(Model.CartItems.FirstOrDefault(i => i.ProductId == item.Id).Quantity >= item.Amount ? "disabled" : "")
-                                        onclick="addToCart('@item.Id')">+</button>
+                                        @(item.Quantity >= item.Product.Amount ? "disabled" : "")
+                                        onclick="addToCart('@item.Product.Id')">+</button>
                             </div>
                         </td>
-                        <td>@item.Price.ToString("C")</td>
+                        <td>@((item.Product.Price * item.Quantity).ToString("C"))</td>
                         <td>
-                            <button onclick="removeFromCart('@item.Id', 1)" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
+                            <button onclick="removeFromCart('@item.Product.Id', 1)" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>
                 }
@@ -55,10 +57,8 @@
                 <a asp-action="ClearCart" class="btn btn-danger me-4">Очистити кошик</a>
             </div>
             <div>
-                <form asp-action="AddPromoCode" method="post">
-                    <input asp-for="Promocode.Id" type="text" class="my-3" placeholder="Promocode" value="@(Model.Promocode.Id != null ? Model.Promocode.Id : "")"/>
-                    <input type="submit" class="btn btn-secondary btn-sm ms-2" value="Apply"/>
-                </form>
+                <input id="promocodeInput" type="text" class="my-3" placeholder="Promocode" value="@(Model.Promocode.Id != null ? Model.Promocode.Id : "")"/>
+                <button onclick="addPromocode()" class="btn btn-secondary btn-sm ms-2">Apply</button>
             </div>
         }
         else

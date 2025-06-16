@@ -1,0 +1,30 @@
+﻿@model PromocodeCreateVM
+
+<div style="width: 40%; margin: 0px auto; background-color: lightgoldenrodyellow; border-radius: 5px; padding: 10px; border: 2px solid black;">
+    <h1 class="text-center my-3">@(Model.IsEdit ? "Редагування промокоду" : "Створення промокоду")</h1>
+    <form asp-action=@(Model.IsEdit ? "Edit" : "Create") enctype="multipart/form-data" method="post" class="d-flex align-items-center flex-column">
+        <div style="width: 90%;">
+            <div @(!Model.IsEdit ? "" : "hidden")>
+                <label for="id" class="col-form-label">Промокод</label>
+                <input type="text" class="form-control" asp-for="Promocode.Id">
+            </div>
+            <div>
+                <label for="discount" class="col-form-label">Знижка</label>
+                <input type="number" class="form-control" asp-for="Promocode.Discount">
+            </div>
+        </div>
+        <div style="text-align: center; padding-top: 10px;">
+            <input type="submit" value=@(Model.IsEdit ? "Зберегти" : "Створити") class="btn btn-primary" />
+            <a class="btn btn-dark" asp-action="Index">Повернутися</a>
+        </div>
+    </form>
+    @if (Model.Errors != null)
+    {
+        <div class="text-center d-flex flex-column mt-3">
+            @foreach (var error in Model.Errors)
+            {
+                <label style="font-size: 0.9em; color: red;">@error</label>
+            }
+        </div>
+    }
+</div>

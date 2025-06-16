@@ -7,7 +7,7 @@ namespace mvc_project.Services.Cart
         void AddToCart(CartItemVM viewModel);
         void RemoveFromCart(CartItemVM viewModel);
         IEnumerable<CartItemVM> GetItems();
-        IEnumerable<Product> ToProducts(IEnumerable<CartItemVM> items);
+        void SetItems(IEnumerable<CartItemVM> items);
         CartItemVM? FindById(string id);
         void ClearCart();
         Task PlaceOrderAsync();

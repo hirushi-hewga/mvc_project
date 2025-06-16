@@ -18,17 +18,11 @@ namespace mvc_project.Services.Cart
         
         public void AddToCart(CartItemVM viewModel)
         {
-            var context = _httpContextAccessor.HttpContext;
-            if (context == null)
-                return;
-            var session = context.Session;
-
-            var items = session.Get<IEnumerable<CartItemVM>>(Settings.SessionCartKey);
-            var list = items == null ? new List<CartItemVM>() : items.ToList();
-            
             var product = _productRepository.FindById(viewModel.ProductId);
             if (product == null)
                 return;
+            
+            var list = GetItems().ToList();
 
             if (list.Exists(i => i.ProductId == viewModel.ProductId))
             {
@@ -44,19 +38,12 @@ namespace mvc_project.Services.Cart
                 list.Add(viewModel);
             }
             
-            session.Set<IEnumerable<CartItemVM>>(Settings.SessionCartKey, list);
+            SetItems(list);
         }
 
         public void RemoveFromCart(CartItemVM viewModel)
         {
-            var context = _httpContextAccessor.HttpContext;
-            if (context == null)
-                return;
-            var session = context.Session;
-
-            var items = session.Get<IEnumerable<CartItemVM>>(Settings.SessionCartKey);
-            items ??= new List<CartItemVM>();
-            var list = items.ToList();
+            var list = GetItems().ToList();
 
             if (list.FirstOrDefault(i => i.ProductId == viewModel.ProductId)?.Quantity > 1 && viewModel.Quantity != 1)
             {
@@ -65,10 +52,10 @@ namespace mvc_project.Services.Cart
             }
             else
             {
-                list = items.Where(i => i.ProductId != viewModel.ProductId).ToList();
+                list = list.Where(i => i.ProductId != viewModel.ProductId).ToList();
             }
             
-            session.Set<IEnumerable<CartItemVM>>(Settings.SessionCartKey, list);
+            SetItems(list);
         }
 
         public IEnumerable<CartItemVM> GetItems()
@@ -82,21 +69,20 @@ namespace mvc_project.Services.Cart
             return items ?? new List<CartItemVM>();
         }
 
-        public IEnumerable<Product> ToProducts(IEnumerable<CartItemVM> items)
-        {
-            var products = _productRepository.Products.Where(p => items.Select(i => i.ProductId).Contains(p.Id)).ToList();
-            return products;
-        }
-
-
-        public CartItemVM? FindById(string id)
+        public void SetItems(IEnumerable<CartItemVM> items)
         {
             var context = _httpContextAccessor.HttpContext;
             if (context == null)
-                return null;
+                return;
             var session = context.Session;
             
-            var item = session.Get<IEnumerable<CartItemVM>>(Settings.SessionCartKey).FirstOrDefault(i => i.ProductId == id);
+            session.Set(Settings.SessionCartKey, items);
+        }
+
+        public CartItemVM? FindById(string id)
+        {
+            var items = GetItems();
+            var item = items.FirstOrDefault(i => i.ProductId == id);
             return item;
         }
 
@@ -119,15 +105,15 @@ namespace mvc_project.Services.Cart
         
         public async Task PlaceOrderAsync()
         {
-            var items = ToProducts(GetItems()).ToList();
+            var items = GetItems().Select(i => _productRepository.FindById(i.ProductId)).ToArray();
             foreach (var item in items)
             {
                 var cartItem = FindById(item.Id);
                 if (cartItem == null)
                     return;
                 item.Amount -= cartItem.Quantity;
-                await _productRepository.UpdateAsync(item);
             }
+            await _productRepository.UpdateAsync(items);
             ClearCart();
         }
     }

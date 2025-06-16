@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using mvc_project.Models;
+using mvc_project.Repositories.Products;
+using mvc_project.Repositories.Promocodes;
 using mvc_project.Services.Cart;
 using mvc_project.Services.PromoCode;
 
@@ -9,44 +11,39 @@ namespace mvc_project.Controllers
     {
         private readonly ICartService _cartService;
         private readonly IPromoCodeService _promoCodeService;
+        private readonly IProductRepository _productRepository;
+        private readonly IPromocodeRepository _promocodeRepository;
 
-        public CartController(ICartService cartService, IPromoCodeService promoCodeService)
+        public CartController(ICartService cartService, IPromoCodeService promoCodeService, IProductRepository productRepository, IPromocodeRepository promocodeRepository)
         {
             _cartService = cartService;
             _promoCodeService = promoCodeService;
+            _productRepository = productRepository;
+            _promocodeRepository = promocodeRepository;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> IndexAsync()
         {
             var cartItems = _cartService.GetItems().ToList();
-            var items = _cartService.ToProducts(cartItems).ToList();
+            var items = cartItems.Select(i => _productRepository.FindById(i.ProductId)).ToList();
             var viewModel = new CartVM
             {
-                Items = items,
-                CartItems = cartItems,
-                Promocodes = _promoCodeService.GetAll().ToList(),
-                Promocode = _promoCodeService.GetPromoCode(),
+                Items = items.Select(x => new ProductCartVM{ Product = x, Quantity = cartItems.FirstOrDefault(i => i.ProductId == x.Id).Quantity }).ToList(),
+                Promocodes = _promocodeRepository.GetAll().ToList(),
+                Promocode = await _promoCodeService.GetPromoCodeAsync(),
                 Sum = cartItems.Sum(x => x.Quantity * items.First(i => i.Id == x.ProductId).Price)
             };
             return View(viewModel);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult AddPromoCode(Promocode promocode)
+        public IActionResult AddPromoCode([FromBody] Promocode promocode)
         {
+            if (string.IsNullOrEmpty(promocode.Id))
+                return BadRequest();
+            
             _promoCodeService.SetPromoCode(promocode.Id);
-            var cartItems = _cartService.GetItems().ToList();
-            var items = _cartService.ToProducts(cartItems).ToList();
-            var viewModel = new CartVM
-            {
-                Items = items,
-                CartItems = cartItems,
-                Promocodes = _promoCodeService.GetAll().ToList(),
-                Promocode = _promoCodeService.GetPromoCode(),
-                Sum = cartItems.Sum(x => x.Quantity * items.First(i => i.Id == x.ProductId).Price)
-            };
-            return View("Index", viewModel);
+            return Ok();
         }
         
         [HttpPost]
@@ -73,8 +70,8 @@ namespace mvc_project.Controllers
         {
             _cartService.ClearCart();
             var cartItems = _cartService.GetItems().ToList();
-            viewModel.Items = _cartService.ToProducts(cartItems).ToList();
-            viewModel.CartItems = cartItems;
+            var items = cartItems.Select(i => _productRepository.FindById(i.ProductId)).ToList();
+            viewModel.Items = items.Select(x => new ProductCartVM{ Product = x, Quantity = cartItems.FirstOrDefault(i => i.ProductId == x.Id).Quantity }).ToList();
             return View("Index", viewModel);
         }
 
@@ -82,9 +79,9 @@ namespace mvc_project.Controllers
         {
             await _cartService.PlaceOrderAsync();
             var cartItems = _cartService.GetItems().ToList();
-            viewModel.Items = _cartService.ToProducts(cartItems).ToList();
-            viewModel.CartItems = cartItems;
-            return View("Index", viewModel);
+            var items = cartItems.Select(i => _productRepository.FindById(i.ProductId)).ToList();
+            viewModel.Items = items.Select(x => new ProductCartVM{ Product = x, Quantity = cartItems.FirstOrDefault(i => i.ProductId == x.Id).Quantity }).ToList();
+            return RedirectToAction("Index", "Home");
         }
     }
 }

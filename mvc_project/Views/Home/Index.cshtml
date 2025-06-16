@@ -18,7 +18,7 @@
         <div class="row">
             @foreach (var item in Model.Products)
             {
-                <div id="@item.Product.Id" class="col-md-12 col-lg-3 mb-4 mb-lg-2">
+                <div id="@item.Product.Id" class="col-md-12 col-lg-3 mb-4 mb-lg-2 @(item.Product.Amount > 0 ? "" : "opacity-50")">
                     <div class="card h-100 shadow product-home-card">
                         <a asp-action="Details" asp-route-id="@item.Product.Id">
                             <div class="text-center">
@@ -47,15 +47,18 @@
                                 }
                                 else
                                 {
-                                    <button onclick="addToCart('@item.Product.Id', '@item.Product.Name', @item.Product.Price, '@item.Product.Image')" 
+                                    <button onclick="addToCart('@item.Product.Id')" 
                                             class="btn btn-warning" @(item.Product.Amount == 0 ? "disabled" : "")>
                                         <i class="bi bi-cart-plus-fill"></i>
                                     </button>
                                 }
                             </div>
                         </div>
-                        <p class="text-end pe-3 @(item.Product.Amount == 0 ? "text-danger" : "text-muted")">
-                            Available: <span class="fw-bold">@item.Product.Amount</span>
+                        <p class="text-end pe-3 @(item.Product.Amount > 0 ? "text-muted" : "text-danger")">
+                            В наявності: 
+                            <span class="fw-bold">
+                                @(item.Product.Amount > 0 ? item.Product.Amount : "немає")
+                            </span>
                         </p>
                     </div>
                 </div>

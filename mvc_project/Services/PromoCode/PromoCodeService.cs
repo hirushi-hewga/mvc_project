@@ -1,6 +1,8 @@
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 using mvc_project.Data;
 using mvc_project.Models;
+using mvc_project.Repositories.Promocodes;
 using mvc_project.Services.Session;
 
 namespace mvc_project.Services.PromoCode
@@ -9,23 +11,13 @@ namespace mvc_project.Services.PromoCode
     {
         private readonly AppDbContext _dbContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IPromocodeRepository _promocodeRepository;
 
-        public PromoCodeService(AppDbContext dbContext, IHttpContextAccessor httpContextAccessor)
+        public PromoCodeService(AppDbContext dbContext, IHttpContextAccessor httpContextAccessor, IPromocodeRepository promocodeRepository)
         {
             _dbContext = dbContext;
             _httpContextAccessor = httpContextAccessor;
-        }
-
-        public IEnumerable<Promocode> GetAll()
-        {
-            return _dbContext.Promocodes;
-        }
-
-        public Promocode? FindById(string? id)
-        {
-            var promoCode = _dbContext.Promocodes.FirstOrDefault(p => p.Id == id);
-
-            return promoCode;
+            _promocodeRepository = promocodeRepository;
         }
 
         public void SetPromoCode(string? promoCodeId)
@@ -39,7 +31,7 @@ namespace mvc_project.Services.PromoCode
             session.Set(Settings.SessionPromoCodeKey, promoCodeId);
         }
 
-        public Promocode? GetPromoCode()
+        public async Task<Promocode?> GetPromoCodeAsync()
         {
             var context = _httpContextAccessor.HttpContext;
             if (context == null)
@@ -49,7 +41,7 @@ namespace mvc_project.Services.PromoCode
             if (bytes == null)
                 return new Promocode();
             var promoCodeId = Encoding.ASCII.GetString(bytes).Trim('"');
-            return FindById(promoCodeId);
+            return await _promocodeRepository.FindByIdAsync(promoCodeId);
         }
     }
 }

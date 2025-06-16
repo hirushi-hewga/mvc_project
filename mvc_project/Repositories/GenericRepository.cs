@@ -23,9 +23,10 @@ namespace mvc_project.Repositories
             return result > 0;
         }
 
-        public async Task<bool> UpdateAsync(TModel model)
+        public async Task<bool> UpdateAsync(params TModel[] model)
         {
-            _context.Set<TModel>().Update(model);
+            foreach (var item in model)
+                _context.Set<TModel>().Update(item);
             var result = await _context.SaveChangesAsync();
             return result > 0;
         }

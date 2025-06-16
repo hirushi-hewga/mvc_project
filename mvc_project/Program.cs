@@ -5,6 +5,7 @@ using mvc_project.Data.Initializer;
 using mvc_project.Models.Identity;
 using mvc_project.Repositories.Categories;
 using mvc_project.Repositories.Products;
+using mvc_project.Repositories.Promocodes;
 using mvc_project.Services.Cart;
 using mvc_project.Services.Image;
 using mvc_project.Services.PromoCode;
@@ -22,6 +23,7 @@ builder.Services.AddScoped<IPromoCodeService, PromoCodeService>();
 // Add repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IPromocodeRepository, PromocodeRepository>();
 
 // Add database context
 builder.Services.AddDbContext<AppDbContext>(options =>
